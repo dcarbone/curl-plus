@@ -26,14 +26,14 @@ interface IOCurlContainer
      * @param string $header
      * @return void
      */
-    public function addRequestHeader($header);
+    public function addRequestHeaderString($header);
 
     /**
      * @param int $opt
      * @param mixed $value
      * @return void
      */
-    public function addCurlOpt($opt, $value);
+    public function setCurlOpt($opt, $value);
 
     /**
      * @param int $opt

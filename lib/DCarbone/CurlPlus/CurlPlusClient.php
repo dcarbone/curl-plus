@@ -25,8 +25,6 @@ class CurlPlusClient
     protected $lastError = null;
     /** @var array|mixed */
     protected $lastInfo = null;
-    /** @var array */
-    protected $options = array();
 
     /**
      * @Constructor
@@ -34,13 +32,11 @@ class CurlPlusClient
      * @param string $url
      * @param array $curlOpts
      * @param array $requestHeaders
-     * @param array $options
      */
-    public function __construct($url = null, array $curlOpts = array(), array $requestHeaders = array(), array $options = array())
+    public function __construct($url = null, array $curlOpts = array(), array $requestHeaders = array())
     {
         $this->curlOpts = $curlOpts;
         $this->requestHeaders = $requestHeaders;
-        $this->options = $options;
 
         // In case they use they deprecated way of setting the curl url.
         if (array_key_exists(CURLOPT_URL, $this->curlOpts))
@@ -59,7 +55,7 @@ class CurlPlusClient
     /**
      * Get the last error value
      *
-     * @return mixed|string
+     * @return mixed|null|string
      */
     public function getLastError()
     {
@@ -178,6 +174,16 @@ class CurlPlusClient
     public function getCurlOpts()
     {
         return $this->curlOpts;
+    }
+
+    /**
+     * @param $opt
+     * @return void
+     */
+    public function removeCurlOpt($opt)
+    {
+        if (isset($this->curlOpts[$opt]))
+            unset($this->curlOpts[$opt]);
     }
 
     /**
