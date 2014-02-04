@@ -1,48 +1,36 @@
-<?php namespace DCarbone\OCURL\Error;
+<?php namespace DCarbone\CurlPlus\Error;
 
 /**
  * Class CurlErrorBase
- * @package DCarbone\OCURL\Error
+ * @package DCarbone\CurlPlus\Error
  */
 class CurlErrorBase
 {
-    /**
-     * @var string
-     */
+    /** @var mixed */
     protected $response;
-
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $info;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $error;
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $curlOpts;
-    /**
-     * @var array
-     */
-    protected $httpHeaders;
+    /** @var array */
+    protected $requestHeaders;
 
     /**
      * @param $response
      * @param $info
      * @param $error
      * @param array $curlOpts
-     * @param array $httpHeaders
+     * @param array $requestHeaders
      */
-    public function __construct($response, $info, $error, array $curlOpts, array $httpHeaders)
+    public function __construct($response, $info, $error, array $curlOpts, array $requestHeaders)
     {
         $this->response = $response;
         $this->info = $info;
         $this->error = $error;
         $this->curlOpts = $curlOpts;
-        $this->httpHeaders = $httpHeaders;
+        $this->requestHeaders = $requestHeaders;
     }
 
     /**
@@ -90,9 +78,9 @@ class CurlErrorBase
      *
      * @return array
      */
-    public function getHttpHeaders()
+    public function getRequestHeaders()
     {
-        return $this->httpHeaders;
+        return $this->requestHeaders;
     }
 
     /**

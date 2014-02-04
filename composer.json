@@ -1,5 +1,5 @@
 {
-    "name" : "dcarbone/o-curl",
+    "name" : "dcarbone/curl-plus",
     "type" : "library",
     "description" : "OO CURL for PHP",
 
@@ -18,7 +18,7 @@
     },
     "autoload" : {
         "psr-0" : {
-            "DCarbone\\OCURL\\" : "lib/"
+            "DCarbone\\CurlPlus\\" : "lib/"
         }
     }
 }

@@ -1,57 +1,31 @@
-<?php namespace DCarbone\OCURL;
+<?php namespace DCarbone\CurlPlus;
 
-use DCarbone\OCURL\Error\CurlErrorBase;
-use DCarbone\OCURL\Response\CurlResponse;
+use DCarbone\CurlPlus\Error\CurlErrorBase;
+use DCarbone\CurlPlus\Response\CurlResponse;
 
 /**
  * Class CurlClient
- * @package DCarbone\OCURL
+ * @package DCarbone\CurlPlus
  */
-class CurlClient
+class CurlPlusClient
 {
-    /**
-     * @var null|resource
-     */
+    /** @var resource */
     protected $ch = null;
-
-    /**
-     * @var string|null
-     */
+    /** @var string */
     protected $accept = null;
-
-    /**
-     * @var array
-     */
-    protected $httpHeaders = array();
-
-    /**
-     * @var array
-     */
+    /** @var array */
+    protected $requestHeaders = array();
+    /** @var array */
     protected $curlOpts = array();
-
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $lastUrl = null;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $lastResponse = null;
-
-    /**
-     * @var string|mixed
-     */
+    /** @var string|mixed */
     protected $lastError = null;
-
-    /**
-     * @var array|mixed
-     */
+    /** @var array|mixed */
     protected $lastInfo = null;
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $options = array();
 
     /**
@@ -59,13 +33,13 @@ class CurlClient
      *
      * @param string $url
      * @param array $curlOpts
-     * @param array $httpHeaders
+     * @param array $requestHeaders
      * @param array $options
      */
-    public function __construct($url = null, array $curlOpts = array(), array $httpHeaders = array(), array $options = array())
+    public function __construct($url = null, array $curlOpts = array(), array $requestHeaders = array(), array $options = array())
     {
         $this->curlOpts = $curlOpts;
-        $this->httpHeaders = $httpHeaders;
+        $this->requestHeaders = $requestHeaders;
         $this->options = $options;
 
         // In case they use they deprecated way of setting the curl url.
@@ -119,7 +93,7 @@ class CurlClient
      * @param bool $reset
      * @return $this
      */
-    public function setURL($url, $reset = true)
+    public function setRequestUrl($url, $reset = true)
     {
         if (gettype($this->ch) === 'resource')
             curl_close($this->ch);
@@ -127,7 +101,7 @@ class CurlClient
         $this->ch = curl_init($url);
 
         if ($reset === true)
-            $this->resetOpts();
+            $this->resetCurlOpts();
 
         return $this;
     }
@@ -135,12 +109,12 @@ class CurlClient
     /**
      * Add a header string to the request
      *
-     * @param $string
+     * @param string $string
      * @return $this
      */
-    public function addHTTPHeaderString($string)
+    public function addRequestHeaderString($string)
     {
-        $this->httpHeaders[] = $string;
+        $this->requestHeaders[] = $string;
         return $this;
     }
 
@@ -149,9 +123,18 @@ class CurlClient
      *
      * @return array
      */
-    public function getHTTPHeaderArray()
+    public function getRequestHeaders()
     {
-        return $this->httpHeaders;
+        return $this->requestHeaders;
+    }
+
+    /**
+     * @param array $headers
+     * @return void
+     */
+    public function setRequestHeaders(array $headers)
+    {
+        $this->requestHeaders = $headers;
     }
 
     /**
@@ -159,27 +142,25 @@ class CurlClient
      *
      * @link http://www.php.net/manual/en/function.curl-setopt.php
      *
-     * @name setOpt
      * @param Mixed  $opt curl option
      * @param Mixed  $val curl option value
      * @return $this
      */
-    public function setOpt($opt, $val)
+    public function setCurlOpt($opt, $val)
     {
         $this->curlOpts[$opt] = $val;
         return $this;
     }
 
     /**
-     * Set Array of CURL options
+     * Set array of CURL options
      *
      * @link http://www.php.net/manual/en/function.curl-setopt-array.php
      *
-     * @name setOptArray
-     * @param Array  $array CURL parameters
+     * @param array  $array CURL parameters
      * @return $this
      */
-    public function setOptArray(Array $array)
+    public function setCurlOpts(array $array)
     {
         foreach($array as $k=>$v)
             $this->curlOpts[$k] = $v;
@@ -194,20 +175,20 @@ class CurlClient
      *
      * @return array
      */
-    public function getOpts()
+    public function getCurlOpts()
     {
         return $this->curlOpts;
     }
 
     /**
-     * Reset the curlopt and httpheader arrays
+     * Reset the curlopt and requestheader arrays
      *
      * @return $this
      */
-    public function resetOpts()
+    public function resetCurlOpts()
     {
         $this->curlOpts = array();
-        $this->httpHeaders = array();
+        $this->requestHeaders = array();
 
         return $this;
     }
@@ -215,21 +196,22 @@ class CurlClient
     /**
      * Execute CURL command
      *
+     * @param bool $close
      * @throws \Exception
-     * @return \DCarbone\OCURL\Response\CurlResponse
+     * @return \DCarbone\CurlPlus\Response\CurlResponse
      */
-    public function execute()
+    public function execute($close = false)
     {
         if (gettype($this->ch) !== 'resource')
             throw new \Exception('No valid cURL resource found! (Are you trying to execute the same handle twice?)');
 
         // Set the Header array (if any)
-        if (count($this->httpHeaders) > 0)
-            $this->setOpt(CURLOPT_HTTPHEADER, $this->httpHeaders);
+        if (count($this->requestHeaders) > 0)
+            $this->setCurlOpt(CURLOPT_HTTPHEADER, $this->requestHeaders);
 
         // Return the Header info unless they specify otherwise
         if (!array_key_exists(CURLINFO_HEADER_OUT, $this->curlOpts))
-            $this->setOpt(CURLINFO_HEADER_OUT, true);
+            $this->setCurlOpt(CURLINFO_HEADER_OUT, true);
 
         // Set the CURLOPTS
         curl_setopt_array($this->ch, $this->curlOpts);
@@ -240,13 +222,14 @@ class CurlClient
         $this->lastInfo = curl_getinfo($this->ch);
 
         // Close the handle
-        $this->close();
+        if ($close === true)
+            $this->close();
 
         // Return the object.
         if ($this->lastError !== '' && $this->lastError !== false)
-            return new CurlErrorBase($this->lastResponse, $this->lastInfo, $this->lastError, $this->curlOpts, $this->httpHeaders);
+            return new CurlErrorBase($this->lastResponse, $this->lastInfo, $this->lastError, $this->curlOpts, $this->requestHeaders);
 
-        return new CurlResponse($this->lastResponse, $this->lastInfo, $this->lastError, $this->curlOpts, $this->httpHeaders);
+        return new CurlResponse($this->lastResponse, $this->lastInfo, $this->lastError, $this->curlOpts, $this->requestHeaders);
     }
 
     /**
@@ -258,8 +241,8 @@ class CurlClient
     {
         if (gettype($this->ch) === 'resource')
             curl_close($this->ch);
-        else
-            trigger_error('Tried to close non-resource.  Are you closing the curl session twice?');
+//        else
+//            trigger_error('Tried to close non-resource.  Are you closing the curl session twice?');
     }
 
     /**

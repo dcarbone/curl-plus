@@ -1,8 +1,8 @@
-<?php namespace DCarbone\OCURL\Response;
+<?php namespace DCarbone\CurlPlus\Response;
 
 /**
  * Class CurlResultBase
- * @package DCarbone\OCURL\Response
+ * @package DCarbone\CurlPlus\Response
  */
 class CurlResponse implements ICurlResponse
 {
@@ -27,7 +27,7 @@ class CurlResponse implements ICurlResponse
      * @param mixed $error
      * @param array $curlOpts
      * @param array $httpHeaders
-     * @return \DCarbone\OCURL\Response\CurlResponse
+     * @return \DCarbone\CurlPlus\Response\CurlResponse
      */
     public function __construct($response, $info, $error, array $curlOpts, array $httpHeaders)
     {

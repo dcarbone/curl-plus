@@ -1,8 +1,8 @@
-<?php namespace DCarbone\OCURL\Response;
+<?php namespace DCarbone\CurlPlus\Response;
 
 /**
  * Interface ICurlResponse
- * @package DCarbone\OCURL\Response
+ * @package DCarbone\CurlPlus\Response
  */
 interface ICurlResponse
 {
