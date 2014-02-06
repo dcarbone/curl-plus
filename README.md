@@ -1,7 +1,7 @@
 curl-plus
 ======
 
-A simple OO wrapper around PHP's cURL implementation
+A simple wrapper around PHP's cURL implementation
 
 This library is still considered to be in it's BETA phase.  Additional functionality will come as I get time.
 

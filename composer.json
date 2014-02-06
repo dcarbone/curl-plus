@@ -1,7 +1,14 @@
 {
     "name" : "dcarbone/curl-plus",
     "type" : "library",
-    "description" : "OO CURL for PHP",
+    "description" : "Object wrapper for PHP's CURL Library",
+
+    "keywords": [
+        "php",
+        "curl"
+    ],
+    "homepage": "https://github.com/dcarbone/curl-plus",
+    "license": "MIT",
 
     "authors" : [
         {
@@ -13,9 +20,9 @@
     "require" : {
         "php" : ">=5.3.3",
         "lib-curl" : "*",
-        "lib-openssl" : "*",
-        "lib-libxml" : "*"
+        "lib-openssl" : "*"
     },
+
     "autoload" : {
         "psr-0" : {
             "DCarbone\\CurlPlus\\" : "lib/"
