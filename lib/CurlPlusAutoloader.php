@@ -59,23 +59,21 @@ class CurlPlusAutoLoader {
      * @throws Exception
      * @return bool|null
      */
-    public static function loadClass($className){
-
-
+    public static function loadClass($className)
+    {
         // handle only package classes
-        if(strpos($className, 'Less_') !== 0){
+        if(strpos($className, 'DCarbone\\CurlPlus') !== 0)
             return null;
-        }
 
-        $className = substr($className,5);
-        $fileName = self::$libDir . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+        $exp = explode('\\',$className);
+        $fileName = self::$libDir . '\\' . implode(DIRECTORY_SEPARATOR, $exp).'.php';
 
-        if(file_exists($fileName)){
+        if(file_exists($fileName))
+        {
             require $fileName;
             return true;
-        }else{
-            throw new Exception('file not loadable '.$fileName);
         }
-    }
 
+        throw new Exception('file not loadable '.$fileName);
+    }
 }
