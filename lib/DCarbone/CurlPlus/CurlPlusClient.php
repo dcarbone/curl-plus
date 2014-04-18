@@ -7,7 +7,7 @@ use DCarbone\CurlPlus\Response\CurlResponse;
  * Class CurlClient
  * @package DCarbone\CurlPlus
  */
-class CurlPlusClient
+class CurlPlusClient implements ICurlPlusContainer
 {
     /** @var resource */
     protected $ch = null;
@@ -259,5 +259,13 @@ class CurlPlusClient
     public function version()
     {
         return curl_version();
+    }
+
+    /**
+     * @throws \BadMethodCallException
+     */
+    public function &getClient()
+    {
+        throw new \BadMethodCallException('CurlPlusClient::getClient - Do not call getClient on base CurlPlusClient object.');
     }
 }
