@@ -27,7 +27,7 @@ class CurlPlusClient
     protected $lastInfo = null;
 
     /**
-     * @Constructor
+     * Constructor
      *
      * @param string $url
      * @param array $curlOpts
@@ -138,8 +138,8 @@ class CurlPlusClient
      *
      * @link http://www.php.net/manual/en/function.curl-setopt.php
      *
-     * @param Mixed  $opt curl option
-     * @param Mixed  $val curl option value
+     * @param mixed  $opt curl option
+     * @param mixed  $val curl option value
      * @return $this
      */
     public function setCurlOpt($opt, $val)
@@ -254,9 +254,7 @@ class CurlPlusClient
     /**
      * Return the version of CURL currently implemented
      *
-     * @name version
-     * @access public
-     * @return Mixed
+     * @return mixed
      */
     public function version()
     {
