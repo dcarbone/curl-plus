@@ -24,8 +24,8 @@
     },
 
     "autoload" : {
-        "psr-0" : {
-            "DCarbone\\CurlPlus\\" : "lib/"
+        "psr-4" : {
+            "DCarbone\\CurlPlus\\" : ""
         }
     }
 }
