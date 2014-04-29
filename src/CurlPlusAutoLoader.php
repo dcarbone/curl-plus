@@ -66,6 +66,8 @@ class CurlPlusAutoLoader {
             return null;
 
         $exp = explode('\\',$className);
+        array_shift($exp);
+        array_shift($exp);
         $fileName = self::$libDir . '\\' . implode(DIRECTORY_SEPARATOR, $exp).'.php';
 
         if(file_exists($fileName))
