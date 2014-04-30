@@ -10,7 +10,7 @@ This library is still considered to be in it's BETA phase.  Additional functiona
 Add
 
 ```
-"dcarbone/curl-plus" : "0.2.*"
+"dcarbone/curl-plus" : "0.3.*"
 ```
 
 To your application's ``` composer.json ``` file.
