@@ -6,16 +6,18 @@
  */
 class CurlErrorBase
 {
-    /** @var mixed */
-    protected $response;
-    /** @var mixed */
-    protected $info;
     /** @var string */
-    protected $error;
+    protected $response = null;
     /** @var array */
-    protected $curlOpts;
+    protected $info = null;
+    /** @var string */
+    protected $error = null;
+    /** @var integer */
+    protected $httpCode = 404;
     /** @var array */
-    protected $requestHeaders;
+    protected $curlOpts = array();
+    /** @var array */
+    protected $httpHeaders = array();
 
     /**
      * @param $response
@@ -28,6 +30,10 @@ class CurlErrorBase
     {
         $this->response = $response;
         $this->info = $info;
+
+        if (isset($this->info['http_code']))
+            $this->httpCode = (int)$this->info['http_code'];
+
         $this->error = $error;
         $this->curlOpts = $curlOpts;
         $this->requestHeaders = $requestHeaders;
@@ -36,7 +42,7 @@ class CurlErrorBase
     /**
      * Get the response (if any)
      *
-     * @return string
+     * @return null|string
      */
     public function getResponse()
     {
@@ -51,6 +57,14 @@ class CurlErrorBase
     public function getInfo()
     {
         return $this->info;
+    }
+
+    /**
+     * @return int
+     */
+    public function getHttpCode()
+    {
+        return $this->httpCode;
     }
 
     /**
