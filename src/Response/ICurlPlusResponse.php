@@ -1,10 +1,10 @@
 <?php namespace DCarbone\CurlPlus\Response;
 
 /**
- * Interface ICurlResponse
+ * Interface ICurlPlusResponse
  * @package DCarbone\CurlPlus\Response
  */
-interface ICurlResponse
+interface ICurlPlusResponse
 {
     /**
      * @return mixed

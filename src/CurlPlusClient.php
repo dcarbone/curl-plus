@@ -1,7 +1,8 @@
 <?php namespace DCarbone\CurlPlus;
 
 use DCarbone\CurlPlus\Error\CurlErrorBase;
-use DCarbone\CurlPlus\Response\CurlResponse;
+use DCarbone\CurlPlus\Response\CurlPlusFileResponse;
+use DCarbone\CurlPlus\Response\CurlPlusResponse;
 
 /**
  * Class CurlClient
@@ -19,12 +20,6 @@ class CurlPlusClient implements ICurlPlusContainer
     protected $curlOpts = array();
     /** @var string */
     protected $lastUrl = null;
-    /** @var string */
-    protected $lastResponse = null;
-    /** @var string|mixed */
-    protected $lastError = null;
-    /** @var array|mixed */
-    protected $lastInfo = null;
 
     /**
      * Constructor
@@ -32,6 +27,7 @@ class CurlPlusClient implements ICurlPlusContainer
      * @param string $url
      * @param array $curlOpts
      * @param array $requestHeaders
+     * @return \DCarbone\CurlPlus\CurlPlusClient
      */
     public function __construct($url = null, array $curlOpts = array(), array $requestHeaders = array())
     {
@@ -53,36 +49,6 @@ class CurlPlusClient implements ICurlPlusContainer
     }
 
     /**
-     * Get the last error value
-     *
-     * @return mixed|null|string
-     */
-    public function getLastError()
-    {
-        return $this->lastError;
-    }
-
-    /**
-     * Get the last response value
-     *
-     * @return string
-     */
-    public function getLastResponse()
-    {
-        return $this->lastResponse;
-    }
-
-    /**
-     * Return the last curl_getinfo array
-     *
-     * @return array|mixed
-     */
-    public function getLastInfo()
-    {
-        return $this->lastInfo;
-    }
-
-    /**
      * Create a new CURL resource
      *
      * @param string $url
@@ -92,7 +58,7 @@ class CurlPlusClient implements ICurlPlusContainer
     public function setRequestUrl($url, $reset = true)
     {
         if (gettype($this->ch) === 'resource')
-            curl_close($this->ch);
+            $this->close();
 
         $this->ch = curl_init($url);
 
@@ -200,13 +166,45 @@ class CurlPlusClient implements ICurlPlusContainer
     }
 
     /**
+     * @param bool $close
+     * @param bool $resetOpts
+     * @return CurlPlusFileResponse|CurlPlusResponse
+     */
+    protected function createResponse($close, $resetOpts)
+    {
+        if (array_key_exists(CURLOPT_FILE, $this->curlOpts))
+            $response = new CurlPlusFileResponse(
+                curl_exec($this->ch),
+                curl_getinfo($this->ch),
+                curl_error($this->ch),
+                $this->curlOpts,
+                $this->requestHeaders
+            );
+        else
+            $response = new CurlPlusResponse(
+            curl_exec($this->ch),
+            curl_getinfo($this->ch),
+            curl_error($this->ch),
+            $this->curlOpts,
+            $this->requestHeaders
+        );
+
+        // Close the handle
+        if ($close === true)
+            $this->close($resetOpts);
+
+        return $response;
+    }
+
+    /**
      * Execute CURL command
      *
      * @param bool $close
+     * @param bool $resetOpts
      * @throws \Exception
-     * @return \DCarbone\CurlPlus\Response\CurlResponse
+     * @return \DCarbone\CurlPlus\Response\CurlPlusResponse
      */
-    public function execute($close = false)
+    public function execute($close = false, $resetOpts = false)
     {
         if (gettype($this->ch) !== 'resource')
             throw new \Exception('No valid cURL resource found! (Are you trying to execute the same handle twice?)');
@@ -222,33 +220,22 @@ class CurlPlusClient implements ICurlPlusContainer
         // Set the CURLOPTS
         curl_setopt_array($this->ch, $this->curlOpts);
 
-        // Execute and get meta data
-        $this->lastResponse = curl_exec($this->ch);
-        $this->lastError = curl_error($this->ch);
-        $this->lastInfo = curl_getinfo($this->ch);
-
-        // Close the handle
-        if ($close === true)
-            $this->close();
-
-        // Return the object.
-        if ($this->lastError !== '' && $this->lastError !== false)
-            return new CurlErrorBase($this->lastResponse, $this->lastInfo, $this->lastError, $this->curlOpts, $this->requestHeaders);
-
-        return new CurlResponse($this->lastResponse, $this->lastInfo, $this->lastError, $this->curlOpts, $this->requestHeaders);
+        return $this->createResponse($close, $resetOpts);
     }
 
     /**
      * Close the curl session or trigger an error
      *
+     * @param bool $resetOpts
      * @return void
      */
-    public function close()
+    public function close($resetOpts = false)
     {
         if (gettype($this->ch) === 'resource')
             curl_close($this->ch);
-//        else
-//            trigger_error('Tried to close non-resource.  Are you closing the curl session twice?');
+
+        if ($resetOpts === true)
+            $this->resetCurlOpts();
     }
 
     /**

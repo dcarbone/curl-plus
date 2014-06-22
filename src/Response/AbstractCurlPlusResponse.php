@@ -1,10 +1,10 @@
 <?php namespace DCarbone\CurlPlus\Response;
 
 /**
- * Class CurlResultBase
+ * Class AbstractCurlPlusResponse
  * @package DCarbone\CurlPlus\Response
  */
-class CurlResponse implements ICurlResponse
+abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
 {
     /** @var string */
     protected $response = null;
@@ -27,7 +27,7 @@ class CurlResponse implements ICurlResponse
      * @param mixed $error
      * @param array $curlOpts
      * @param array $httpHeaders
-     * @return \DCarbone\CurlPlus\Response\CurlResponse
+     * @return \DCarbone\CurlPlus\Response\AbstractCurlPlusResponse
      */
     public function __construct($response, $info, $error, array $curlOpts, array $httpHeaders)
     {

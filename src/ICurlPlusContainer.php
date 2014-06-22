@@ -7,7 +7,7 @@
 interface ICurlPlusContainer
 {
     /**
-     * @return CurlPlusClient
+     * @return ICurlPlusContainer
      */
     public function &getClient();
 
@@ -29,6 +29,7 @@ interface ICurlPlusContainer
     public function addRequestHeaderString($header);
 
     /**
+     * @link http://www.php.net//manual/en/function.curl-setopt.php
      * @param int $opt
      * @param mixed $value
      * @return ICurlPlusContainer

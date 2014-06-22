@@ -1,26 +1,15 @@
 <?php
 
 /**
- * CurlPlusAutoLoader
- *
- * @package CurLPlus
- * @subpackage autoload
+ * Class CurlPlusAutoLoader
  */
 class CurlPlusAutoLoader {
 
-    /**
-     * Registered flag
-     *
-     * @var boolean
-     */
+    /** @var boolean */
     protected static $registered = false;
 
-    /**
-     * Library directory
-     *
-     * @var string
-     */
-    protected static $libDir;
+    /** @var string */
+    protected static $srcDir;
 
     /**
      * Register the autoloader in the spl autoloader
@@ -33,7 +22,7 @@ class CurlPlusAutoLoader {
         if (self::$registered)
             return;
 
-        self::$libDir = dirname(__FILE__);
+        self::$srcDir = dirname(__FILE__);
 
         if(false === spl_autoload_register(array('CurlPlusAutoLoader', 'loadClass')))
             throw new Exception('Unable to register CurlPlusAutoLoader::loadClass as an autoloading method.');
@@ -68,7 +57,7 @@ class CurlPlusAutoLoader {
         $exp = explode('\\',$className);
         array_shift($exp);
         array_shift($exp);
-        $fileName = self::$libDir . '\\' . implode(DIRECTORY_SEPARATOR, $exp).'.php';
+        $fileName = self::$srcDir . '\\' . implode(DIRECTORY_SEPARATOR, $exp).'.php';
 
         if(file_exists($fileName))
         {
@@ -76,6 +65,6 @@ class CurlPlusAutoLoader {
             return true;
         }
 
-        throw new Exception('file not loadable '.$fileName);
+        throw new Exception('CurlPlusAutoLoader::loadClass - file not loadable "'.$fileName.'"');
     }
 }
