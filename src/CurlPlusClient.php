@@ -1,6 +1,5 @@
 <?php namespace DCarbone\CurlPlus;
 
-use DCarbone\CurlPlus\Error\CurlErrorBase;
 use DCarbone\CurlPlus\Response\CurlPlusFileResponse;
 use DCarbone\CurlPlus\Response\CurlPlusResponse;
 
