@@ -30,18 +30,26 @@ abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
      */
     public function __construct($response, $info, $error, array $curlOpts)
     {
-        $exp = explode("\r\n\r\n", $response, 2);
-
-        switch(count($exp))
+        if (array_key_exists(CURLOPT_HEADER, $curlOpts) && $curlOpts[CURLOPT_HEADER] == true)
         {
-            case 2 :
-                $this->response = end($exp);
-                $this->responseHeaders = reset($exp);
-                break;
+            $exp = explode("\r\n\r\n", $response, 2);
 
-            default :
-                $this->response = $response;
-                break;
+
+            switch(count($exp))
+            {
+                case 2 :
+                    $this->response = end($exp);
+                    $this->responseHeaders = reset($exp);
+                    break;
+
+                default :
+                    $this->response = $response;
+                    break;
+            }
+        }
+        else
+        {
+            $this->response = $response;
         }
 
         $this->info = $info;
