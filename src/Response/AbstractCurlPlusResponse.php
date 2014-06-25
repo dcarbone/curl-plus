@@ -30,21 +30,27 @@ abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
      */
     public function __construct($response, $info, $error, array $curlOpts)
     {
-        if (array_key_exists(CURLOPT_HEADER, $curlOpts) && $curlOpts[CURLOPT_HEADER] == true)
+        if (is_string($response) && array_key_exists(CURLOPT_HEADER, $curlOpts) && $curlOpts[CURLOPT_HEADER] == true)
         {
-            $exp = explode("\r\n\r\n", $response, 2);
-
-
-            switch(count($exp))
+            $responseHeaderString = '';
+            $phrase = '';
+            for ($i = 0; $i < strlen($response); $i++)
             {
-                case 2 :
-                    $this->response = end($exp);
-                    $this->responseHeaders = reset($exp);
+                $last_four = substr($phrase, -4);
+                $first_seven = substr($phrase, 0, 7);
+                if ($last_four === "\r\n\r\n" && ($first_seven === 'HTTP/1.' || $first_seven === 'http/1.'))
+                {
+                    $responseHeaderString .= $phrase;
+                    $phrase = '';
+                }
+                else if (strlen($phrase) > 7 && !($first_seven === 'HTTP/1.' || $first_seven === 'http/1.'))
+                {
+                    $this->responseHeaders = $responseHeaderString;
+                    $this->response = substr($response, strlen($responseHeaderString));
                     break;
+                }
 
-                default :
-                    $this->response = $response;
-                    break;
+                $phrase .= substr($response, $i, 1);
             }
         }
         else
