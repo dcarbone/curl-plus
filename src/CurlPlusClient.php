@@ -11,8 +11,6 @@ class CurlPlusClient implements ICurlPlusContainer
 {
     /** @var resource */
     protected $ch = null;
-    /** @var string */
-    protected $accept = null;
     /** @var array */
     protected $requestHeaders = array();
     /** @var array */
@@ -165,6 +163,31 @@ class CurlPlusClient implements ICurlPlusContainer
     }
 
     /**
+     * Returns true if passed in curlopt has a value
+     *
+     * @param int $opt
+     * @return bool
+     */
+    public function curlOptSet($opt)
+    {
+        return array_key_exists($opt, $this->curlOpts);
+    }
+
+    /**
+     * Returns value, if set, of curlopt
+     *
+     * @param int $opt
+     * @return mixed
+     */
+    public function getCurlOptValue($opt)
+    {
+        if ($this->curlOptSet($opt))
+            return $this->curlOpts[$opt];
+
+        return null;
+    }
+
+    /**
      * @param bool $close
      * @param bool $resetOpts
      * @return CurlPlusFileResponse|CurlPlusResponse
@@ -176,16 +199,14 @@ class CurlPlusClient implements ICurlPlusContainer
                 curl_exec($this->ch),
                 curl_getinfo($this->ch),
                 curl_error($this->ch),
-                $this->curlOpts,
-                $this->requestHeaders
+                $this->curlOpts
             );
         else
             $response = new CurlPlusResponse(
             curl_exec($this->ch),
             curl_getinfo($this->ch),
             curl_error($this->ch),
-            $this->curlOpts,
-            $this->requestHeaders
+            $this->curlOpts
         );
 
         // Close the handle
@@ -213,8 +234,12 @@ class CurlPlusClient implements ICurlPlusContainer
             $this->setCurlOpt(CURLOPT_HTTPHEADER, $this->requestHeaders);
 
         // Return the Header info unless they specify otherwise
-        if (!array_key_exists(CURLINFO_HEADER_OUT, $this->curlOpts))
+        if (!$this->curlOptSet(CURLINFO_HEADER_OUT))
             $this->setCurlOpt(CURLINFO_HEADER_OUT, true);
+
+        // Output response header into body if body is being returned to memory, rather than output buffer
+        if (!$this->curlOptSet(CURLOPT_HEADER) && $this->getCurlOptValue(CURLOPT_RETURNTRANSFER) == true)
+            $this->setCurlOpt(CURLOPT_HEADER, true);
 
         // Set the CURLOPTS
         curl_setopt_array($this->ch, $this->curlOpts);

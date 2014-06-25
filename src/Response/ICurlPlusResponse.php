@@ -27,12 +27,12 @@ interface ICurlPlusResponse
     public function getHttpCode();
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getQueryHeaders();
+    public function getRequestHeaders();
 
     /**
-     * @return array
+     * @return string|null
      */
     public function getResponseHeaders();
 }

@@ -8,6 +8,8 @@ abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
 {
     /** @var string */
     protected $response = null;
+    /** @var string */
+    protected $responseHeaders = null;
     /** @var array */
     protected $info = null;
     /** @var string */
@@ -16,8 +18,6 @@ abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
     protected $httpCode = 404;
     /** @var array */
     protected $curlOpts = array();
-    /** @var array */
-    protected $httpHeaders = array();
 
     /**
      * Constructor
@@ -26,12 +26,24 @@ abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
      * @param array $info
      * @param mixed $error
      * @param array $curlOpts
-     * @param array $httpHeaders
      * @return \DCarbone\CurlPlus\Response\AbstractCurlPlusResponse
      */
-    public function __construct($response, $info, $error, array $curlOpts, array $httpHeaders)
+    public function __construct($response, $info, $error, array $curlOpts)
     {
-        $this->response = $response;
+        $exp = explode("\r\n\r\n", $response, 2);
+
+        switch(count($exp))
+        {
+            case 2 :
+                $this->response = end($exp);
+                $this->responseHeaders = reset($exp);
+                break;
+
+            default :
+                $this->response = $response;
+                break;
+        }
+
         $this->info = $info;
         $this->error = $error;
 
@@ -39,7 +51,6 @@ abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
             $this->httpCode = (int)$this->info['http_code'];
 
         $this->curlOpts = $curlOpts;
-        $this->httpHeaders = $httpHeaders;
     }
 
     /**
@@ -97,13 +108,20 @@ abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
         return $this->httpCode;
     }
 
-    public function getQueryHeaders()
+    /**
+     * @return array|null
+     */
+    public function getRequestHeaders()
     {
-        // TODO: Implement getQueryHeaders() method.
+        $info = $this->getInfo();
+        return (isset($info['request_header']) ? $info['request_header'] : null);
     }
 
+    /**
+     * @return null|string
+     */
     public function getResponseHeaders()
     {
-        // TODO: Implement getResponseHeaders() method.
+        return $this->responseHeaders;
     }
 }

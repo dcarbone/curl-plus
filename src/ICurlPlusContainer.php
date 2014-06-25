@@ -28,6 +28,23 @@ interface ICurlPlusContainer
      */
     public function addRequestHeaderString($header);
 
+    // @TODO Determine if these should be added to the interface.
+//    /**
+//     * Returns true if passed in curlopt has a value
+//     *
+//     * @param int $opt
+//     * @return bool
+//     */
+//    public function curlOptSet($opt);
+//
+//    /**
+//     * Returns value, if set, of curlopt
+//     *
+//     * @param int $opt
+//     * @return mixed
+//     */
+//    public function getCurlOptValue($opt);
+
     /**
      * @link http://www.php.net//manual/en/function.curl-setopt.php
      * @param int $opt
