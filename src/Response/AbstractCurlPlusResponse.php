@@ -30,27 +30,28 @@ abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
      */
     public function __construct($response, $info, $error, array $curlOpts)
     {
-        if (is_string($response) && array_key_exists(CURLOPT_HEADER, $curlOpts) && $curlOpts[CURLOPT_HEADER] == true)
+        if (is_string($response) && isset($curlOpts[CURLOPT_HEADER]) && $curlOpts[CURLOPT_HEADER] == true)
         {
             $responseHeaderString = '';
             $phrase = '';
-            for ($i = 0; $i < strlen($response); $i++)
+            $strlen = strlen($response);
+            for ($i = 0; $i < $strlen; $i++)
             {
-                $last_four = substr($phrase, -4);
-                $first_seven = substr($phrase, 0, 7);
-                if ($last_four === "\r\n\r\n" && ($first_seven === 'HTTP/1.' || $first_seven === 'http/1.'))
+                $lastFour = substr($phrase, -4);
+                $firstSeven = substr($phrase, 0, 7);
+                if ($lastFour === "\r\n\r\n" && ($firstSeven === 'HTTP/1.' || $firstSeven === 'http/1.'))
                 {
                     $responseHeaderString .= $phrase;
                     $phrase = '';
                 }
-                else if (strlen($phrase) > 7 && !($first_seven === 'HTTP/1.' || $first_seven === 'http/1.'))
+                else if (strlen($phrase) > 7 && !($firstSeven === 'HTTP/1.' || $firstSeven === 'http/1.'))
                 {
                     $this->responseHeaders = $responseHeaderString;
                     $this->response = substr($response, strlen($responseHeaderString));
                     break;
                 }
 
-                $phrase .= substr($response, $i, 1);
+                $phrase .= $response[$i];
             }
         }
         else

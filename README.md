@@ -87,7 +87,7 @@ Post-construct, the methods:
 
 ```php
 // Set the URL you wish to query against, additionally you may also reset any existing curl opts
-public function setRequestUrl($url, $reset = true) {}
+public function initialize($url, $reset = true) {}
 
 // Accepts any options seen here: http://www.php.net//manual/en/function.curl-setopt.php
 public function setCurlOpt($opt, $val) {}

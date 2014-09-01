@@ -7,8 +7,20 @@ use DCarbone\CurlPlus\Response\CurlPlusResponse;
  * Class CurlClient
  * @package DCarbone\CurlPlus
  */
-class CurlPlusClient implements ICurlPlusContainer
+class CurlPlusClient
 {
+    const STATE_NEW         = 0;
+    const STATE_INITIALIZED = 1;
+    const STATE_EXECUTING   = 2;
+    const STATE_EXECUTED    = 3;
+    const STATE_CLOSED      = 4;
+
+    /**
+     * Default state is "0" or "NEW"
+     * @var int
+     */
+    protected $state = 0;
+
     /** @var resource */
     protected $ch = null;
     /** @var array */
@@ -16,7 +28,7 @@ class CurlPlusClient implements ICurlPlusContainer
     /** @var array */
     protected $curlOpts = array();
     /** @var string */
-    protected $lastUrl = null;
+    protected $currentRequestUrl = null;
 
     /**
      * Constructor
@@ -28,21 +40,21 @@ class CurlPlusClient implements ICurlPlusContainer
      */
     public function __construct($url = null, array $curlOpts = array(), array $requestHeaders = array())
     {
-        $this->curlOpts = $curlOpts;
-        $this->requestHeaders = $requestHeaders;
-
         // In case they use they deprecated way of setting the curl url.
-        if (array_key_exists(CURLOPT_URL, $this->curlOpts))
+        if (isset($curlOpts[CURLOPT_URL]))
         {
-            $this->lastUrl = $this->curlOpts[CURLOPT_URL];
-            $this->ch = curl_init($this->curlOpts[CURLOPT_URL]);
-            unset($this->curlOpts[CURLOPT_URL]);
+            $this->currentRequestUrl = $curlOpts[CURLOPT_URL];
+            unset($curlOpts[CURLOPT_URL]);
+            $this->state = self::STATE_INITIALIZED;
         }
         else if (is_string($url))
         {
-            $this->ch = curl_init($url);
-            $this->lastUrl = $url;
+            $this->currentRequestUrl = $url;
+            $this->state = self::STATE_INITIALIZED;
         }
+
+        $this->curlOpts = $curlOpts;
+        $this->requestHeaders = $requestHeaders;
     }
 
     /**
@@ -52,17 +64,24 @@ class CurlPlusClient implements ICurlPlusContainer
      * @param bool $reset
      * @return $this
      */
-    public function setRequestUrl($url, $reset = true)
+    public function initialize($url, $reset = true)
     {
-        if (gettype($this->ch) === 'resource')
-            $this->close();
-
-        $this->ch = curl_init($url);
-
         if ($reset === true)
-            $this->resetCurlOpts();
+            $this->reset();
+
+        $this->currentRequestUrl = $url;
+
+        $this->state = self::STATE_INITIALIZED;
 
         return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getRequestUrl()
+    {
+        return $this->currentRequestUrl;
     }
 
     /**
@@ -150,31 +169,46 @@ class CurlPlusClient implements ICurlPlusContainer
     }
 
     /**
-     * Reset the curlopt and requestheader arrays
+     * Close the curl resource, if exists
+     */
+    public function close()
+    {
+        if (gettype($this->ch) === 'resource')
+            curl_close($this->ch);
+
+        $this->state = self::STATE_CLOSED;
+    }
+
+    /**
+     * Reset to new state
      *
      * @return $this
      */
-    public function resetCurlOpts()
+    public function reset()
     {
+        $this->close();
         $this->curlOpts = array();
         $this->requestHeaders = array();
+        $this->currentRequestUrl = null;
+
+        $this->state = self::STATE_NEW;
 
         return $this;
     }
 
     /**
-     * Returns true if passed in curlopt has a value
+     * Returns true if passed in curl option has a value
      *
      * @param int $opt
      * @return bool
      */
     public function curlOptSet($opt)
     {
-        return array_key_exists($opt, $this->curlOpts);
+        return isset($this->curlOpts[$opt]);
     }
 
     /**
-     * Returns value, if set, of curlopt
+     * Returns value, if set, of curl option
      *
      * @param int $opt
      * @return mixed
@@ -188,30 +222,34 @@ class CurlPlusClient implements ICurlPlusContainer
     }
 
     /**
-     * @param bool $close
-     * @param bool $resetOpts
+     * @param bool $resetAfterExecution
      * @return CurlPlusFileResponse|CurlPlusResponse
      */
-    protected function createResponse($close, $resetOpts)
+    protected function createResponse($resetAfterExecution)
     {
-        if (array_key_exists(CURLOPT_FILE, $this->curlOpts))
+        $this->state = self::STATE_EXECUTING;
+
+        if (isset($this->curlOpts[CURLOPT_FILE]))
+        {
             $response = new CurlPlusFileResponse(
                 curl_exec($this->ch),
                 curl_getinfo($this->ch),
                 curl_error($this->ch),
-                $this->curlOpts
-            );
+                $this->curlOpts);
+        }
         else
+        {
             $response = new CurlPlusResponse(
-            curl_exec($this->ch),
-            curl_getinfo($this->ch),
-            curl_error($this->ch),
-            $this->curlOpts
-        );
+                curl_exec($this->ch),
+                curl_getinfo($this->ch),
+                curl_error($this->ch),
+                $this->curlOpts);
+        }
 
-        // Close the handle
-        if ($close === true)
-            $this->close($resetOpts);
+        $this->state = self::STATE_EXECUTED;
+
+        if ($resetAfterExecution)
+            $this->reset();
 
         return $response;
     }
@@ -219,15 +257,25 @@ class CurlPlusClient implements ICurlPlusContainer
     /**
      * Execute CURL command
      *
-     * @param bool $close
-     * @param bool $resetOpts
-     * @throws \Exception
+     * @param bool $resetAfterExecution
+     * @throws \RuntimeException
      * @return \DCarbone\CurlPlus\Response\CurlPlusResponse
      */
-    public function execute($close = false, $resetOpts = false)
+    public function execute($resetAfterExecution = false)
     {
-        if (gettype($this->ch) !== 'resource')
-            throw new \Exception('No valid cURL resource found! (Are you trying to execute the same handle twice?)');
+        if ($this->state === self::STATE_NEW)
+            throw new \RuntimeException(
+                get_class($this).'::execute - Could not execute request, curl has not be initialized.'
+            );
+
+        if ($this->state === self::STATE_EXECUTED)
+            $this->close();
+
+        if ($this->state === self::STATE_CLOSED)
+            $this->initialize($this->currentRequestUrl, false);
+
+        // Create curl handle resource
+        $this->ch = curl_init($this->currentRequestUrl);
 
         // Set the Header array (if any)
         if (count($this->requestHeaders) > 0)
@@ -244,22 +292,7 @@ class CurlPlusClient implements ICurlPlusContainer
         // Set the CURLOPTS
         curl_setopt_array($this->ch, $this->curlOpts);
 
-        return $this->createResponse($close, $resetOpts);
-    }
-
-    /**
-     * Close the curl session or trigger an error
-     *
-     * @param bool $resetOpts
-     * @return void
-     */
-    public function close($resetOpts = false)
-    {
-        if (gettype($this->ch) === 'resource')
-            curl_close($this->ch);
-
-        if ($resetOpts === true)
-            $this->resetCurlOpts();
+        return $this->createResponse($resetAfterExecution);
     }
 
     /**
@@ -270,13 +303,5 @@ class CurlPlusClient implements ICurlPlusContainer
     public function version()
     {
         return curl_version();
-    }
-
-    /**
-     * @throws \BadMethodCallException
-     */
-    public function &getClient()
-    {
-        throw new \BadMethodCallException('CurlPlusClient::getClient - Do not call getClient on base CurlPlusClient object.');
     }
 }
