@@ -128,8 +128,10 @@ abstract class AbstractCurlPlusResponse implements ICurlPlusResponse
      */
     public function getRequestHeaders()
     {
-        $info = $this->getInfo();
-        return (isset($info['request_header']) ? $info['request_header'] : null);
+        if (isset($this->info['request_header']))
+            return $this->info['request_header'];
+        else
+            return null;
     }
 
     /**
