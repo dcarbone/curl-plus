@@ -19,8 +19,7 @@
 
     "require" : {
         "php" : ">=5.3.3",
-        "lib-curl" : "*",
-        "lib-openssl" : "*"
+        "lib-curl" : "*"
     },
 
     "require-dev" : {
