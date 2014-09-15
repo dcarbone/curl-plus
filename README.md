@@ -5,7 +5,7 @@ A simple wrapper around PHP's cURL implementation.  It does not do anything magi
 
 Build status:
 - master: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?branch=master)](https://travis-ci.org/dcarbone/curl-plus)
-- 0.5.*: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?branch=0.5.1)](https://travis-ci.org/dcarbone/curl-plus)
+- 0.6.0: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?tag=0.6.0)](https://travis-ci.org/dcarbone/curl-plus)
 
 # Installation
 
@@ -17,7 +17,7 @@ you prefer for loading classes into your app.
 Add
 
 ```
-"dcarbone/curl-plus" : "0.5.*"
+"dcarbone/curl-plus" : "0.6.*"
 ```
 
 To your application's ``` composer.json ``` file.
@@ -105,7 +105,7 @@ public function setCurlOpts(array $array) {}
 ## Interface
 
 On many occasions curl is used as part of another class's operation.  In order to help facilitate this, I have provided an interface for
-your curl-containing class called `ICurlPlusContainer` that the `CurlPlusClient` class itself actually implements.
+your curl-containing class called `ICurlPlusContainer`.
 
 The usage of this interface is optional, and only serves to provide a standard implementation mechanism.
 
