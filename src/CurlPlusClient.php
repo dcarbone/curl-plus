@@ -1,6 +1,5 @@
 <?php namespace DCarbone\CurlPlus;
 
-use DCarbone\CurlPlus\Response\CurlPlusFileResponse;
 use DCarbone\CurlPlus\Response\CurlPlusResponse;
 
 /**
@@ -153,7 +152,7 @@ class CurlPlusClient
     }
 
     /**
-     * @param $opt
+     * @param int $opt
      * @return void
      */
     public function removeCurlOpt($opt)
@@ -217,28 +216,17 @@ class CurlPlusClient
 
     /**
      * @param bool $resetAfterExecution
-     * @return CurlPlusFileResponse|CurlPlusResponse
+     * @return CurlPlusResponse
      */
     protected function createResponse($resetAfterExecution)
     {
         $this->state = StateEnumeration::STATE_EXECUTING;
 
-        if (isset($this->curlOpts[CURLOPT_FILE]))
-        {
-            $response = new CurlPlusFileResponse(
-                curl_exec($this->ch),
-                curl_getinfo($this->ch),
-                curl_error($this->ch),
-                $this->curlOpts);
-        }
-        else
-        {
-            $response = new CurlPlusResponse(
-                curl_exec($this->ch),
-                curl_getinfo($this->ch),
-                curl_error($this->ch),
-                $this->curlOpts);
-        }
+        $response = new CurlPlusResponse(
+            curl_exec($this->ch),
+            curl_getinfo($this->ch),
+            curl_error($this->ch),
+            $this->curlOpts);
 
         $this->state = StateEnumeration::STATE_EXECUTED;
 

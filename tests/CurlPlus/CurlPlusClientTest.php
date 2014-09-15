@@ -14,7 +14,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      * @uses \DCarbone\CurlPlus\CurlPlusClient
      * @return \DCarbone\CurlPlus\CurlPlusClient
      */
-    public function testCanConstructCurlPlusObjectWithNoArguments()
+    public function testCanConstructCurlPlusClientWithNoArguments()
     {
         $curlClient = new \DCarbone\CurlPlus\CurlPlusClient();
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusClient', $curlClient);
@@ -25,7 +25,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::getRequestUrl
      * @uses \DCarbone\CurlPlus\CurlPlusClient
-     * @depends testCanConstructCurlPlusObjectWithNoArguments
+     * @depends testCanConstructCurlPlusClientWithNoArguments
      * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
      */
     public function testCanGetNullRequestUrlWithEmptyConstructorArguments(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
@@ -38,7 +38,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::getRequestHeaders
      * @uses \DCarbone\CurlPlus\CurlPlusClient
-     * @depends testCanConstructCurlPlusObjectWithNoArguments
+     * @depends testCanConstructCurlPlusClientWithNoArguments
      * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
      */
     public function testCanGetEmptyCurlOptArrayWithEmptyConstructorArguments(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
@@ -51,7 +51,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::version
      * @uses \DCarbone\CurlPlus\CurlPlusClient
-     * @depends testCanConstructCurlPlusObjectWithNoArguments
+     * @depends testCanConstructCurlPlusClientWithNoArguments
      * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
      */
     public function testCanGetCurlVersion(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
@@ -64,7 +64,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::execute
      * @uses \DCarbone\CurlPlus\CurlPlusClient
-     * @depends testCanConstructCurlPlusObjectWithNoArguments
+     * @depends testCanConstructCurlPlusClientWithNoArguments
      * @expectedException \RuntimeException
      * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
      */
@@ -171,6 +171,145 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey(CURLOPT_RETURNTRANSFER, $curlOptArray);
         $this->assertArrayNotHasKey(CURLOPT_URL, $curlOptArray);
         $this->assertContains(true, $curlOptArray);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::getCurlOpts
+     * @covers \DCarbone\CurlPlus\CurlOptHelper::createHumanReadableCurlOptArray
+     * @covers \DCarbone\CurlPlus\CurlOptHelper::getStringNameForCurlOpt
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @uses \DCarbone\CurlPlus\CurlOptHelper
+     * @depends testCanConstructCurlPlusObjectWithUrlAndCurlOptArrayParams
+     * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
+     */
+    public function testCanGetHumanReadableCurlOptArray(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
+    {
+        $curlOptArray = $curlClient->getCurlOpts(true);
+
+        $this->assertCount(1, $curlOptArray);
+        $this->assertArrayHasKey('CURLOPT_RETURNTRANSFER', $curlOptArray);
+        $this->assertArrayNotHasKey('CURLOPT_URL', $curlOptArray);
+        $this->assertContains(true, $curlOptArray);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::curlOptSet
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @depends testCanConstructCurlPlusObjectWithUrlAndCurlOptArrayParams
+     * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
+     */
+    public function testCanDetermineIfCurlOptIsSet(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
+    {
+        $isset = $curlClient->curlOptSet(CURLOPT_RETURNTRANSFER);
+        $notset = $curlClient->curlOptSet(CURLOPT_URL);
+
+        $this->assertTrue($isset);
+        $this->assertFalse($notset);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::addRequestHeaderString
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::getRequestHeaders
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @return \DCarbone\CurlPlus\CurlPlusClient
+     */
+    public function testCanAddRequestHeaderString()
+    {
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(self::$requestUrl);
+        $client = $curlClient->addRequestHeaderString('Accept: application/json');
+
+        $this->assertEquals($curlClient, $client);
+
+        $requestHeaders = $curlClient->getRequestHeaders();
+        $this->assertInternalType('array', $requestHeaders);
+        $this->assertCount(1, $requestHeaders);
+        $this->assertContains('Accept: application/json', $requestHeaders);
+
+        return $curlClient;
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::setRequestHeaders
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::getRequestHeaders
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @depends testCanAddRequestHeaderString
+     * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
+     */
+    public function testCanOverwriteRequestHeaderArray(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
+    {
+        $curlClient->setRequestHeaders(array('Content-type: text/xml'));
+
+        $requestHeaders = $curlClient->getRequestHeaders();
+
+        $this->assertInternalType('array', $requestHeaders);
+        $this->assertCount(1, $requestHeaders);
+        $this->assertContains('Content-type: text/xml', $requestHeaders);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::getCurlOpts
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::setCurlOpts
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @return \DCarbone\CurlPlus\CurlPlusClient
+     */
+    public function testCanSetCurlOptsWithArray()
+    {
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(self::$requestUrl);
+
+        $curlOpts = $curlClient->getCurlOpts();
+        $this->assertInternalType('array', $curlOpts);
+        $this->assertCount(0, $curlOpts);
+
+        $client = $curlClient->setCurlOpts(array(
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+        ));
+
+        $this->assertEquals($curlClient, $client);
+
+        $curlOpts = $curlClient->getCurlOpts();
+        $this->assertInternalType('array', $curlOpts);
+        $this->assertCount(2, $curlOpts);
+        $this->assertArrayHasKey(CURLOPT_RETURNTRANSFER, $curlOpts);
+        $this->assertArrayHasKey(CURLOPT_SSL_VERIFYPEER, $curlOpts);
+
+        return $curlClient;
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::removeCurlOpt
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::getCurlOpts
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @depends testCanSetCurlOptsWithArray
+     * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
+     * @return \DCarbone\CurlPlus\CurlPlusClient
+     */
+    public function testCanRemoveCurlOpt(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
+    {
+        $curlClient->removeCurlOpt(CURLOPT_SSL_VERIFYPEER);
+
+        $curlOpts = $curlClient->getCurlOpts();
+        $this->assertInternalType('array', $curlOpts);
+        $this->assertCount(1, $curlOpts);
+        $this->assertArrayHasKey(CURLOPT_RETURNTRANSFER, $curlOpts);
+        $this->assertArrayNotHasKey(CURLOPT_SSL_VERIFYPEER, $curlOpts);
+
+        return $curlClient;
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::getCurlOptValue
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @depends testCanRemoveCurlOpt
+     * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
+     */
+    public function testCanGetCurlOptValue(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
+    {
+        $exists = $curlClient->getCurlOptValue(CURLOPT_RETURNTRANSFER);
+        $notexists = $curlClient->getCurlOptValue(CURLOPT_SSL_VERIFYPEER);
+
+        $this->assertTrue($exists);
+        $this->assertNull($notexists);
     }
 
     /**

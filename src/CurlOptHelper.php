@@ -10,7 +10,7 @@ abstract class CurlOptHelper
     private static $init = false;
 
     /** @var array */
-    protected static $curlOptConstantStringNames = array();
+    protected static $humanReadableCurlOpts = array();
     /** @var array */
     protected static $curlOptConstantValues = array();
 
@@ -24,8 +24,7 @@ abstract class CurlOptHelper
 
         $curl_constants = get_defined_constants(true);
 
-        self::$curlOptConstantStringNames = array_keys($curl_constants['curl']);
-        self::$curlOptConstantValues = array_values($curl_constants['curl']);
+        self::$humanReadableCurlOpts = array_flip($curl_constants['curl']);
 
         unset($curl_constants);
 
@@ -38,8 +37,8 @@ abstract class CurlOptHelper
      */
     public static function getStringNameForCurlOpt($curlOpt)
     {
-        if (isset(self::$curlOptConstantValues[$curlOpt]))
-            return self::$curlOptConstantStringNames[self::$curlOptConstantValues[$curlOpt]];
+        if (isset(self::$humanReadableCurlOpts[$curlOpt]))
+            return self::$humanReadableCurlOpts[$curlOpt];
 
         return null;
     }
