@@ -9,12 +9,6 @@ use DCarbone\CurlPlus\Response\CurlPlusResponse;
  */
 class CurlPlusClient
 {
-    const STATE_NEW         = 0;
-    const STATE_INITIALIZED = 1;
-    const STATE_EXECUTING   = 2;
-    const STATE_EXECUTED    = 3;
-    const STATE_CLOSED      = 4;
-
     /**
      * Default state is "0" or "NEW"
      * @var int
@@ -45,12 +39,12 @@ class CurlPlusClient
         {
             $this->currentRequestUrl = $curlOpts[CURLOPT_URL];
             unset($curlOpts[CURLOPT_URL]);
-            $this->state = self::STATE_INITIALIZED;
+            $this->state = StateEnumeration::STATE_INITIALIZED;
         }
         else if (is_string($url))
         {
             $this->currentRequestUrl = $url;
-            $this->state = self::STATE_INITIALIZED;
+            $this->state = StateEnumeration::STATE_INITIALIZED;
         }
 
         $this->curlOpts = $curlOpts;
@@ -71,7 +65,7 @@ class CurlPlusClient
 
         $this->currentRequestUrl = $url;
 
-        $this->state = self::STATE_INITIALIZED;
+        $this->state = StateEnumeration::STATE_INITIALIZED;
 
         return $this;
     }
@@ -147,14 +141,14 @@ class CurlPlusClient
     }
 
     /**
-     * Get the opts set
-     *
-     * This function returns a pointer to the
-     *
+     * @param bool $humanReadable
      * @return array
      */
-    public function getCurlOpts()
+    public function getCurlOpts($humanReadable = false)
     {
+        if ($humanReadable)
+            return CurlOptHelper::createHumanReadableCurlOptArray($this->curlOpts);
+
         return $this->curlOpts;
     }
 
@@ -176,7 +170,7 @@ class CurlPlusClient
         if (gettype($this->ch) === 'resource')
             curl_close($this->ch);
 
-        $this->state = self::STATE_CLOSED;
+        $this->state = StateEnumeration::STATE_CLOSED;
     }
 
     /**
@@ -191,7 +185,7 @@ class CurlPlusClient
         $this->requestHeaders = array();
         $this->currentRequestUrl = null;
 
-        $this->state = self::STATE_NEW;
+        $this->state = StateEnumeration::STATE_NEW;
 
         return $this;
     }
@@ -227,7 +221,7 @@ class CurlPlusClient
      */
     protected function createResponse($resetAfterExecution)
     {
-        $this->state = self::STATE_EXECUTING;
+        $this->state = StateEnumeration::STATE_EXECUTING;
 
         if (isset($this->curlOpts[CURLOPT_FILE]))
         {
@@ -246,7 +240,7 @@ class CurlPlusClient
                 $this->curlOpts);
         }
 
-        $this->state = self::STATE_EXECUTED;
+        $this->state = StateEnumeration::STATE_EXECUTED;
 
         if ($resetAfterExecution)
             $this->reset();
@@ -263,15 +257,15 @@ class CurlPlusClient
      */
     public function execute($resetAfterExecution = false)
     {
-        if ($this->state === self::STATE_NEW)
+        if ($this->state === StateEnumeration::STATE_NEW)
             throw new \RuntimeException(
                 get_class($this).'::execute - Could not execute request, curl has not be initialized.'
             );
 
-        if ($this->state === self::STATE_EXECUTED)
+        if ($this->state === StateEnumeration::STATE_EXECUTED)
             $this->close();
 
-        if ($this->state === self::STATE_CLOSED)
+        if ($this->state === StateEnumeration::STATE_CLOSED)
             $this->initialize($this->currentRequestUrl, false);
 
         // Create curl handle resource
