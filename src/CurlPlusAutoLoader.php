@@ -25,7 +25,7 @@ class CurlPlusAutoLoader {
         self::$srcDir = dirname(__FILE__);
 
         if(false === spl_autoload_register(array('CurlPlusAutoLoader', 'loadClass')))
-            throw new Exception('Unable to register CurlPlusAutoLoader::loadClass as an autoloading method.');
+            throw new \Exception('Unable to register CurlPlusAutoLoader::loadClass as an autoloading method.');
 
         self::$registered = true;
     }
@@ -65,6 +65,6 @@ class CurlPlusAutoLoader {
             return true;
         }
 
-        throw new Exception('CurlPlusAutoLoader::loadClass - file not loadable "'.$fileName.'"');
+        throw new \Exception('CurlPlusAutoLoader::loadClass - file not loadable "'.$fileName.'"');
     }
 }

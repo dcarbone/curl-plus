@@ -12,6 +12,11 @@
         syntaxCheck="true"
         >
 
+    <testsuite name="CurlOptHelper">
+        <directory>./tests/CurlOptHelper</directory>
+        <exclude>./tests/misc</exclude>
+    </testsuite>
+
     <testsuite name="CurlPlus">
         <directory>./tests/CurlPlus</directory>
         <exclude>./tests/misc</exclude>

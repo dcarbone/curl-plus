@@ -229,6 +229,27 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers  \DCarbone\CurlPlus\CurlPlusClient::addRequestHeaders
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @depends testCanAddRequestHeaderString
+     * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
+     * @return \DCarbone\CurlPlus\CurlPlusClient
+     */
+    public function testCanAddArrayOfHeadersToExistingRequestHeaderArray(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
+    {
+        $curlClient->addRequestHeaders(array(
+            'Content-Type: text/html',
+        ));
+
+        $requestHeaders = $curlClient->getRequestHeaders();
+        $this->assertInternalType('array', $requestHeaders);
+        $this->assertCount(2, $requestHeaders);
+        $this->assertContains('Content-Type: text/html', $requestHeaders);
+
+        return $curlClient;
+    }
+
+    /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::setRequestHeaders
      * @covers \DCarbone\CurlPlus\CurlPlusClient::getRequestHeaders
      * @uses \DCarbone\CurlPlus\CurlPlusClient

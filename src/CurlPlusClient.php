@@ -38,12 +38,12 @@ class CurlPlusClient
         {
             $this->currentRequestUrl = $curlOpts[CURLOPT_URL];
             unset($curlOpts[CURLOPT_URL]);
-            $this->state = StateEnumeration::STATE_INITIALIZED;
+            $this->state = CurlPlusClientState::STATE_INITIALIZED;
         }
         else if (is_string($url))
         {
             $this->currentRequestUrl = $url;
-            $this->state = StateEnumeration::STATE_INITIALIZED;
+            $this->state = CurlPlusClientState::STATE_INITIALIZED;
         }
 
         $this->curlOpts = $curlOpts;
@@ -64,7 +64,7 @@ class CurlPlusClient
 
         $this->currentRequestUrl = $url;
 
-        $this->state = StateEnumeration::STATE_INITIALIZED;
+        $this->state = CurlPlusClientState::STATE_INITIALIZED;
 
         return $this;
     }
@@ -101,11 +101,24 @@ class CurlPlusClient
 
     /**
      * @param array $headers
-     * @return void
+     * @return $this
+     */
+    public function addRequestHeaders(array $headers)
+    {
+        $this->requestHeaders = array_merge($this->requestHeaders, $headers);
+
+        return $this;
+    }
+
+    /**
+     * @param array $headers
+     * @return $this
      */
     public function setRequestHeaders(array $headers)
     {
         $this->requestHeaders = $headers;
+
+        return $this;
     }
 
     /**
@@ -169,7 +182,7 @@ class CurlPlusClient
         if (gettype($this->ch) === 'resource')
             curl_close($this->ch);
 
-        $this->state = StateEnumeration::STATE_CLOSED;
+        $this->state = CurlPlusClientState::STATE_CLOSED;
     }
 
     /**
@@ -184,7 +197,7 @@ class CurlPlusClient
         $this->requestHeaders = array();
         $this->currentRequestUrl = null;
 
-        $this->state = StateEnumeration::STATE_NEW;
+        $this->state = CurlPlusClientState::STATE_NEW;
 
         return $this;
     }
@@ -215,28 +228,6 @@ class CurlPlusClient
     }
 
     /**
-     * @param bool $resetAfterExecution
-     * @return CurlPlusResponse
-     */
-    protected function createResponse($resetAfterExecution)
-    {
-        $this->state = StateEnumeration::STATE_EXECUTING;
-
-        $response = new CurlPlusResponse(
-            curl_exec($this->ch),
-            curl_getinfo($this->ch),
-            curl_error($this->ch),
-            $this->curlOpts);
-
-        $this->state = StateEnumeration::STATE_EXECUTED;
-
-        if ($resetAfterExecution)
-            $this->reset();
-
-        return $response;
-    }
-
-    /**
      * Execute CURL command
      *
      * @param bool $resetAfterExecution
@@ -245,15 +236,15 @@ class CurlPlusClient
      */
     public function execute($resetAfterExecution = false)
     {
-        if ($this->state === StateEnumeration::STATE_NEW)
+        if ($this->state === CurlPlusClientState::STATE_NEW)
             throw new \RuntimeException(
                 get_class($this).'::execute - Could not execute request, curl has not be initialized.'
             );
 
-        if ($this->state === StateEnumeration::STATE_EXECUTED)
+        if ($this->state === CurlPlusClientState::STATE_EXECUTED)
             $this->close();
 
-        if ($this->state === StateEnumeration::STATE_CLOSED)
+        if ($this->state === CurlPlusClientState::STATE_CLOSED)
             $this->initialize($this->currentRequestUrl, false);
 
         // Create curl handle resource
@@ -275,6 +266,28 @@ class CurlPlusClient
         curl_setopt_array($this->ch, $this->curlOpts);
 
         return $this->createResponse($resetAfterExecution);
+    }
+
+    /**
+     * @param bool $resetAfterExecution
+     * @return CurlPlusResponse
+     */
+    protected function createResponse($resetAfterExecution)
+    {
+        $this->state = CurlPlusClientState::STATE_EXECUTING;
+
+        $response = new CurlPlusResponse(
+            curl_exec($this->ch),
+            curl_getinfo($this->ch),
+            curl_error($this->ch),
+            $this->curlOpts);
+
+        $this->state = CurlPlusClientState::STATE_EXECUTED;
+
+        if ($resetAfterExecution)
+            $this->reset();
+
+        return $response;
     }
 
     /**

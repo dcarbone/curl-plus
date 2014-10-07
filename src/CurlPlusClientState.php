@@ -1,10 +1,10 @@
 <?php namespace DCarbone\CurlPlus;
 
 /**
- * Class StateEnumeration
+ * Class CurlPlusClientState
  * @package DCarbone\CurlPlus
  */
-abstract class StateEnumeration
+abstract class CurlPlusClientState
 {
     const STATE_NEW         = 0;
     const STATE_INITIALIZED = 1;
