@@ -23,6 +23,64 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::__construct
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::getRequestHeaders
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     */
+    public function testCanConstructCurlPlusClientWithHeaderArgument()
+    {
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, array(), array('Content-Type' => 'text/xml'));
+
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusClient', $curlClient);
+
+        $requestHeaders = $curlClient->getRequestHeaders();
+
+        $this->assertInternalType('array', $requestHeaders);
+        $this->assertCount(1, $requestHeaders);
+        $this->assertArrayHasKey('Content-Type', $requestHeaders);
+        $this->assertContains('text/xml', $requestHeaders);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::__construct
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::getRequestHeaders
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     */
+    public function testCanConstructCurlPlusClientWithHeaderArgumentContainingSpaceInName()
+    {
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, array(), array('Content-Type ' => 'text/xml'));
+
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusClient', $curlClient);
+
+        $requestHeaders = $curlClient->getRequestHeaders();
+
+        $this->assertInternalType('array', $requestHeaders);
+        $this->assertCount(1, $requestHeaders);
+        $this->assertArrayHasKey('Content-Type', $requestHeaders);
+        $this->assertContains('text/xml', $requestHeaders);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::__construct
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @expectedException \InvalidArgumentException
+     */
+    public function testExceptionThrownWhenInvalidHeaderArrayStructurePassedToConstructor()
+    {
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, array(), array('test value'));
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::__construct
+     * @uses \DCarbone\CurlPlus\CurlPlusClient
+     * @expectedException \InvalidArgumentException
+     */
+    public function testExceptionThrownWhenEmptyHeaderNamePassedToConstructor()
+    {
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, array(), array('' => 'text/xml'));
+    }
+
+    /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::getRequestUrl
      * @uses \DCarbone\CurlPlus\CurlPlusClient
      * @depends testCanConstructCurlPlusClientWithNoArguments
@@ -208,7 +266,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \DCarbone\CurlPlus\CurlPlusClient::addRequestHeaderString
+     * @covers \DCarbone\CurlPlus\CurlPlusClient::setRequestHeader
      * @covers \DCarbone\CurlPlus\CurlPlusClient::getRequestHeaders
      * @uses \DCarbone\CurlPlus\CurlPlusClient
      * @return \DCarbone\CurlPlus\CurlPlusClient
@@ -216,14 +274,15 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     public function testCanAddRequestHeaderString()
     {
         $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(self::$requestUrl);
-        $client = $curlClient->addRequestHeaderString('Accept: application/json');
+        $client = $curlClient->setRequestHeader('Accept', 'application/json');
 
         $this->assertEquals($curlClient, $client);
 
         $requestHeaders = $curlClient->getRequestHeaders();
         $this->assertInternalType('array', $requestHeaders);
         $this->assertCount(1, $requestHeaders);
-        $this->assertContains('Accept: application/json', $requestHeaders);
+        $this->assertArrayHasKey('Accept', $requestHeaders);
+        $this->assertContains('application/json', $requestHeaders);
 
         return $curlClient;
     }
@@ -237,14 +296,13 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanAddArrayOfHeadersToExistingRequestHeaderArray(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
     {
-        $curlClient->addRequestHeaders(array(
-            'Content-Type: text/html',
-        ));
+        $curlClient->addRequestHeaders(array('Content-Type' => 'text/html'));
 
         $requestHeaders = $curlClient->getRequestHeaders();
         $this->assertInternalType('array', $requestHeaders);
         $this->assertCount(2, $requestHeaders);
-        $this->assertContains('Content-Type: text/html', $requestHeaders);
+        $this->assertArrayHasKey('Content-Type', $requestHeaders);
+        $this->assertContains('text/html', $requestHeaders);
 
         return $curlClient;
     }
@@ -258,13 +316,14 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanOverwriteRequestHeaderArray(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
     {
-        $curlClient->setRequestHeaders(array('Content-type: text/xml'));
+        $curlClient->setRequestHeaders(array('Content-Type' => 'text/xml'));
 
         $requestHeaders = $curlClient->getRequestHeaders();
 
         $this->assertInternalType('array', $requestHeaders);
         $this->assertCount(1, $requestHeaders);
-        $this->assertContains('Content-type: text/xml', $requestHeaders);
+        $this->assertArrayHasKey('Content-Type', $requestHeaders);
+        $this->assertContains('text/xml', $requestHeaders);
     }
 
     /**

@@ -29,11 +29,15 @@ class CurlPlusClient
      * @param string $url
      * @param array $curlOpts
      * @param array $requestHeaders
+     * @throws \InvalidArgumentException
      * @return \DCarbone\CurlPlus\CurlPlusClient
      */
     public function __construct($url = null, array $curlOpts = array(), array $requestHeaders = array())
     {
-        // In case they use they deprecated way of setting the curl url.
+        if (null !== $url && !is_string($url))
+            throw new \InvalidArgumentException('Argument 1 expected to be string or null, '.gettype($url).' seen.');
+
+        // In case they use the deprecated way of setting the curl url.
         if (isset($curlOpts[CURLOPT_URL]))
         {
             $this->currentRequestUrl = $curlOpts[CURLOPT_URL];
@@ -47,7 +51,20 @@ class CurlPlusClient
         }
 
         $this->curlOpts = $curlOpts;
-        $this->requestHeaders = $requestHeaders;
+
+        $cleanedHeaders = array();
+        foreach(array_keys($requestHeaders) as $key)
+        {
+            if (!is_string($key))
+                throw new \InvalidArgumentException('Request header names must be strings.');
+
+            if (($trimmed = trim($key)) === '')
+                throw new \InvalidArgumentException('Request header names cannot be empty');
+
+            $cleanedHeaders[$trimmed] = $requestHeaders[$key];
+        }
+
+        $this->requestHeaders = $cleanedHeaders;
     }
 
     /**
@@ -59,7 +76,7 @@ class CurlPlusClient
      */
     public function initialize($url, $reset = true)
     {
-        if ($reset === true)
+        if ((bool)$reset)
             $this->reset();
 
         $this->currentRequestUrl = $url;
@@ -80,12 +97,25 @@ class CurlPlusClient
     /**
      * Add a header string to the request
      *
-     * @param string $string
+     * @param string $name
+     * @param string $value
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      * @return $this
      */
-    public function addRequestHeaderString($string)
+    public function setRequestHeader($name, $value)
     {
-        $this->requestHeaders[] = $string;
+        if (!is_string($name))
+            throw new \InvalidArgumentException('Argument 1 expected to be string, '.gettype($name).' seen.');
+
+        if (!is_string($value))
+            throw new \InvalidArgumentException('Argument 2 expected to be string, '.gettype($value).' seen.');
+
+        if (($name = trim($name)) === '')
+            throw new \RuntimeException('Argument 1 cannot be empty string.');
+
+        $this->requestHeaders[$name] = $value;
+
         return $this;
     }
 
@@ -116,7 +146,27 @@ class CurlPlusClient
      */
     public function setRequestHeaders(array $headers)
     {
-        $this->requestHeaders = $headers;
+        $this->requestHeaders = array();
+        foreach($headers as $k=>$v)
+        {
+            $this->setRequestHeader($k, $v);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @throws \InvalidArgumentException
+     * @return $this
+     */
+    public function removeRequestHeader($name)
+    {
+        if (!is_string($name))
+            throw new \InvalidArgumentException('Argument 1 expected to be string, '.gettype($name).' seen.');
+
+        if (isset($this->requestHeaders[$name]))
+            unset($this->requestHeaders[$name]);
 
         return $this;
     }
@@ -158,7 +208,7 @@ class CurlPlusClient
      */
     public function getCurlOpts($humanReadable = false)
     {
-        if ($humanReadable)
+        if ((bool)$humanReadable)
             return CurlOptHelper::createHumanReadableCurlOptArray($this->curlOpts);
 
         return $this->curlOpts;
@@ -166,12 +216,14 @@ class CurlPlusClient
 
     /**
      * @param int $opt
-     * @return void
+     * @return $this
      */
     public function removeCurlOpt($opt)
     {
         if (isset($this->curlOpts[$opt]))
             unset($this->curlOpts[$opt]);
+
+        return $this;
     }
 
     /**
@@ -183,6 +235,8 @@ class CurlPlusClient
             curl_close($this->ch);
 
         $this->state = CurlPlusClientState::STATE_CLOSED;
+
+        return $this;
     }
 
     /**
@@ -252,7 +306,14 @@ class CurlPlusClient
 
         // Set the Header array (if any)
         if (count($this->requestHeaders) > 0)
-            $this->setCurlOpt(CURLOPT_HTTPHEADER, $this->requestHeaders);
+        {
+            $headers = array();
+            foreach($this->requestHeaders as $k=>$v)
+            {
+                $headers[] = "{$k}: {$v}";
+            }
+            $this->setCurlOpt(CURLOPT_HTTPHEADER, $headers);
+        }
 
         // Return the Header info unless they specify otherwise
         if (!$this->curlOptSet(CURLINFO_HEADER_OUT))

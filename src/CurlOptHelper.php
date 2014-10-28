@@ -17,11 +17,8 @@ abstract class CurlOptHelper
     /**
      * Initialization method
      */
-    public static function init()
+    protected static function init()
     {
-        if (self::$init)
-            return;
-
         $curl_constants = get_defined_constants(true);
 
         self::$humanReadableCurlOpts = array_flip($curl_constants['curl']);
@@ -37,6 +34,9 @@ abstract class CurlOptHelper
      */
     public static function getStringNameForCurlOpt($curlOpt)
     {
+        if (!self::$init)
+            self::init();
+
         if (isset(self::$humanReadableCurlOpts[$curlOpt]))
             return self::$humanReadableCurlOpts[$curlOpt];
 
@@ -49,6 +49,9 @@ abstract class CurlOptHelper
      */
     public static function createHumanReadableCurlOptArray(array $curlOpts)
     {
+        if (!self::$init)
+            self::init();
+
         $return = array();
         foreach($curlOpts as $k=>$v)
         {
@@ -60,4 +63,3 @@ abstract class CurlOptHelper
         return $return;
     }
 }
-CurlOptHelper::init();
