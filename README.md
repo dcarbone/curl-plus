@@ -5,7 +5,7 @@ A simple wrapper around PHP's cURL implementation.  It does not do anything magi
 
 Build status:
 - master: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?branch=master)](https://travis-ci.org/dcarbone/curl-plus)
-- 0.6.1: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?tag=0.6.1)](https://travis-ci.org/dcarbone/curl-plus)
+- 1.0.0: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?tag=1.0.0)](https://travis-ci.org/dcarbone/curl-plus)
 
 # Installation
 
@@ -17,7 +17,7 @@ you prefer for loading classes into your app.
 Add
 
 ```
-"dcarbone/curl-plus" : "0.6.*"
+"dcarbone/curl-plus" : "~1.0"
 ```
 
 To your application's ``` composer.json ``` file.
