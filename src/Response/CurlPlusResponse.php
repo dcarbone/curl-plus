@@ -30,29 +30,15 @@ class CurlPlusResponse implements ICurlPlusResponse
      */
     public function __construct($response, $info, $error, array $curlOpts)
     {
-        if (is_string($response) && isset($curlOpts[CURLOPT_HEADER]) && $curlOpts[CURLOPT_HEADER] == true)
+        if (is_string($response) &&
+            isset($curlOpts[CURLOPT_HEADER]) &&
+            $curlOpts[CURLOPT_HEADER] == true &&
+            stripos($response, 'http/') === 0 &&
+            ($pos = strpos($response, "\r\n\r\n")) !== false)
         {
-            $responseHeaderString = '';
-            $phrase = '';
-            $strlen = strlen($response);
-            for ($i = 0; $i < $strlen; $i++)
-            {
-                $lastFour = substr($phrase, -4);
-                $firstSeven = substr($phrase, 0, 7);
-                if ($lastFour === "\r\n\r\n" && ($firstSeven === 'HTTP/1.' || $firstSeven === 'http/1.'))
-                {
-                    $responseHeaderString .= $phrase;
-                    $phrase = '';
-                }
-                else if (strlen($phrase) > 7 && !($firstSeven === 'HTTP/1.' || $firstSeven === 'http/1.'))
-                {
-                    $this->responseHeaders = $responseHeaderString;
-                    $this->response = substr($response, strlen($responseHeaderString));
-                    break;
-                }
-
-                $phrase .= $response[$i];
-            }
+            $pos = $pos + 4;
+            $this->responseHeaders = substr($response, 0, $pos);
+            $this->response = substr($response, $pos);
         }
         else
         {

@@ -7,7 +7,10 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
 {
     /** @var string */
     public static $requestUrl = 'http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js';
+    /** @var string */
     public static $requestUrl2 = 'http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js';
+    /** @var string */
+    public static $smallResponse = 'http://api.gvmtool.net/candidates/grails/default';
 
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::__construct
@@ -476,11 +479,12 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::execute
      * @covers \DCarbone\CurlPlus\Response\CurlPlusResponse::getResponseHeaders
-     * @depends testCanSetCurlOptValuesAfterConstruction
-     * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
+     * @covers \DCarbone\CurlPlus\Response\CurlPlusResponse::__construct
      */
-    public function testCanParseResponseHeadersOutOfResponseBody(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
+    public function testCanParseResponseHeadersOutOfResponseBody()
     {
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(static::$smallResponse, array(CURLOPT_RETURNTRANSFER => true));
+
         $response = $curlClient->execute();
 
         $responseHeaders = $response->getResponseHeaders();
@@ -488,5 +492,10 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
         $this->assertInternalType('string', $responseHeaders);
         $this->assertStringStartsWith('HTTP/1.1 200 OK', $responseHeaders);
         $this->assertStringEndsWith("\r\n\r\n", $responseHeaders);
+
+        $data = $response->getResponse();
+
+        $this->assertInternalType('string', $data);
+        $this->assertRegExp('/^[1-9]+\.[0-9]+\.[0-9]+/', $data);
     }
 }
