@@ -36,9 +36,11 @@ class CurlPlusResponse implements ICurlPlusResponse
             stripos($response, 'http/') === 0 &&
             ($pos = strpos($response, "\r\n\r\n")) !== false)
         {
-            $pos = $pos + 4;
-            $this->responseHeaders = substr($response, 0, $pos);
-            $this->response = substr($response, $pos);
+            $responseHeaderString = '';
+            while(static::parseResponseHeaders($responseHeaderString, $response)) {};
+
+            $this->responseHeaders = $responseHeaderString;
+            $this->response = $response;
         }
         else
         {
@@ -52,6 +54,24 @@ class CurlPlusResponse implements ICurlPlusResponse
             $this->httpCode = (int)$this->info['http_code'];
 
         $this->curlOpts = $curlOpts;
+    }
+
+    /**
+     * @param string $responseHeaderString
+     * @param string $response
+     * @return bool
+     */
+    protected static function parseResponseHeaders(&$responseHeaderString, &$response)
+    {
+        if(stripos($response, 'http/') === 0 && ($pos = strpos($response, "\r\n\r\n")) !== false)
+        {
+            $pos += 4;
+            $responseHeaderString = substr($response, 0, $pos);
+            $response = substr($response, $pos);
+            return true;
+        }
+
+        return false;
     }
 
     /**
