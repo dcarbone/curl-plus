@@ -320,7 +320,7 @@ class CurlPlusClient
             $this->setCurlOpt(CURLINFO_HEADER_OUT, true);
 
         // Output response header into body if body is being returned to memory, rather than output buffer
-        if (!$this->curlOptSet(CURLOPT_HEADER) && $this->getCurlOptValue(CURLOPT_RETURNTRANSFER) == true)
+        if (!$this->curlOptSet(CURLOPT_HEADER) && $this->getCurlOptValue(CURLOPT_RETURNTRANSFER) === true)
             $this->setCurlOpt(CURLOPT_HEADER, true);
 
         // Set the CURLOPTS
