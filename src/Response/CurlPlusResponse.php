@@ -32,7 +32,7 @@ class CurlPlusResponse implements ICurlPlusResponse
     {
         if (is_string($response) &&
             isset($curlOpts[CURLOPT_HEADER]) &&
-            $curlOpts[CURLOPT_HEADER] == true &&
+            $curlOpts[CURLOPT_HEADER] === true &&
             stripos($response, 'http/') === 0 &&
             ($pos = strpos($response, "\r\n\r\n")) !== false)
         {
