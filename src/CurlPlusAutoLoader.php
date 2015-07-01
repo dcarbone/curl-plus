@@ -3,68 +3,58 @@
 /**
  * Class CurlPlusAutoLoader
  */
-class CurlPlusAutoLoader {
+class CurlPlusAutoLoader
+{
+    const ROOT_NAMESPACE_OF_CONCERN = 'DCarbone\\CurlPlus';
+    const ROOT_DIRECTORY_OF_CONCERN = __DIR__;
 
     /** @var boolean */
-    protected static $registered = false;
-
-    /** @var string */
-    protected static $srcDir;
+    private static $registered = false;
 
     /**
      * Register the autoloader in the spl autoloader
      *
-     * @return void
+     * @return bool
      * @throws Exception If there was an error in registration
      */
     public static function register()
     {
         if (self::$registered)
-            return;
+            return self::$registered;
 
-        self::$srcDir = dirname(__FILE__);
-
-        if(false === spl_autoload_register(array('CurlPlusAutoLoader', 'loadClass')))
-            throw new \Exception('Unable to register CurlPlusAutoLoader::loadClass as an autoloading method.');
-
-        self::$registered = true;
+        return self::$registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
     }
 
     /**
      * Unregisters the autoloader
      *
-     * @return void
+     * @return bool
      */
     public static function unregister()
     {
-        spl_autoload_unregister(array('CurlPlusAutoLoader', 'loadClass'));
-        self::$registered = false;
+        self::$registered = !spl_autoload_unregister(array(__CLASS__, 'loadClass'));
+        return !self::$registered;
     }
 
     /**
      * Loads the class
      *
-     * @param string $className The class to load
+     * @param string $class The class to load
      * @throws Exception
      * @return bool|null
      */
-    public static function loadClass($className)
+    public static function loadClass($class)
     {
         // handle only package classes
-        if(strpos($className, 'DCarbone\\CurlPlus') !== 0)
-            return null;
-
-        $exp = explode('\\',$className);
-        array_shift($exp);
-        array_shift($exp);
-        $fileName = self::$srcDir . '\\' . implode(DIRECTORY_SEPARATOR, $exp).'.php';
-
-        if(file_exists($fileName))
+        if (0 === strpos($class, self::ROOT_NAMESPACE_OF_CONCERN))
         {
-            require $fileName;
+            require vsprintf('%s%s.php', array(
+                self::ROOT_DIRECTORY_OF_CONCERN,
+                str_replace(array(self::ROOT_NAMESPACE_OF_CONCERN, '\\'), array('', '/'), $class)
+            ));
+
             return true;
         }
-
-        throw new \Exception('CurlPlusAutoLoader::loadClass - file not loadable "'.$fileName.'"');
+        return null;
     }
 }
