@@ -1,4 +1,4 @@
-<?php namespace DCarbone\CurlPlus;
+<?php namespace DCarbone\CurlPlus\Response;
 
 /*
     CurlPlus: A simple OO implementation of CURL in PHP
@@ -20,14 +20,45 @@
  */
 
 /**
- * Class CurlPlusClientState
- * @package DCarbone\CurlPlus
+ * Interface CurlPlusResponseInterface
+ * @package DCarbone\CurlPlus\Response
  */
-abstract class CurlPlusClientState
+interface CurlPlusResponseInterface
 {
-    const STATE_NEW         = 0;
-    const STATE_INITIALIZED = 1;
-    const STATE_EXECUTING   = 2;
-    const STATE_EXECUTED    = 3;
-    const STATE_CLOSED      = 4;
+    /**
+     * @return mixed
+     */
+    public function getResponseBody();
+
+    /**
+     * @return array
+     */
+    public function getInfo();
+
+    /**
+     * @return mixed
+     */
+    public function getError();
+
+    /**
+     * @return int
+     */
+    public function getHttpCode();
+
+    /**
+     * @param bool $asArray
+     * @return array|null
+     */
+    public function getRequestHeaders($asArray = false);
+
+    /**
+     * @param bool $asArray
+     * @return null|string
+     */
+    public function getResponseHeaders($asArray = false);
+
+    /**
+     * @return string
+     */
+    public function __toString();
 }

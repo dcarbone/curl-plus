@@ -1,38 +1,17 @@
 <?php namespace DCarbone\CurlPlus\Response;
 
 /**
+ * @deprecated Since 2.0: Use CurlPlusResponseInterface
+ *
  * Interface ICurlPlusResponse
  * @package DCarbone\CurlPlus\Response
  */
-interface ICurlPlusResponse
+interface ICurlPlusResponse extends CurlPlusResponseInterface
 {
     /**
+     * @deprecated Since 2.0: Use getResponseBody instead
+     *
      * @return mixed
      */
     public function getResponse();
-
-    /**
-     * @return array
-     */
-    public function getInfo();
-
-    /**
-     * @return mixed
-     */
-    public function getError();
-
-    /**
-     * @return int
-     */
-    public function getHttpCode();
-
-    /**
-     * @return array|null
-     */
-    public function getRequestHeaders();
-
-    /**
-     * @return string|null
-     */
-    public function getResponseHeaders();
 }

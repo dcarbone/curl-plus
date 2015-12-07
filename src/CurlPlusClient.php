@@ -1,5 +1,24 @@
 <?php namespace DCarbone\CurlPlus;
 
+/*
+    CurlPlus: A simple OO implementation of CURL in PHP
+    Copyright (C) 2012-2015  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 use DCarbone\CurlPlus\Response\CurlPlusResponse;
 
 /**
@@ -8,11 +27,8 @@ use DCarbone\CurlPlus\Response\CurlPlusResponse;
  */
 class CurlPlusClient
 {
-    /**
-     * Default state is "0" or "NEW"
-     * @var int
-     */
-    protected $state = 0;
+    /** @var int */
+    protected $state;
 
     /** @var resource */
     protected $ch = null;
@@ -30,10 +46,11 @@ class CurlPlusClient
      * @param array $curlOpts
      * @param array $requestHeaders
      * @throws \InvalidArgumentException
-     * @return \DCarbone\CurlPlus\CurlPlusClient
      */
     public function __construct($url = null, array $curlOpts = array(), array $requestHeaders = array())
     {
+        $this->state = CurlPlusClientState::STATE_NEW;
+
         if (null !== $url && !is_string($url))
             throw new \InvalidArgumentException('Argument 1 expected to be string or null, '.gettype($url).' seen.');
 
@@ -50,21 +67,8 @@ class CurlPlusClient
             $this->state = CurlPlusClientState::STATE_INITIALIZED;
         }
 
-        $this->curlOpts = $curlOpts;
-
-        $cleanedHeaders = array();
-        foreach(array_keys($requestHeaders) as $key)
-        {
-            if (!is_string($key))
-                throw new \InvalidArgumentException('Request header names must be strings.');
-
-            if (($trimmed = trim($key)) === '')
-                throw new \InvalidArgumentException('Request header names cannot be empty');
-
-            $cleanedHeaders[$trimmed] = $requestHeaders[$key];
-        }
-
-        $this->requestHeaders = $cleanedHeaders;
+        $this->setCurlOpts($curlOpts);
+        $this->setRequestHeaders($requestHeaders);
     }
 
     /**
@@ -165,7 +169,7 @@ class CurlPlusClient
         if (!is_string($name))
             throw new \InvalidArgumentException('Argument 1 expected to be string, '.gettype($name).' seen.');
 
-        if (isset($this->requestHeaders[$name]))
+        if (isset($this->requestHeaders[$name]) || array_key_exists($name, $this->requestHeaders))
             unset($this->requestHeaders[$name]);
 
         return $this;
@@ -176,12 +180,22 @@ class CurlPlusClient
      *
      * @link http://www.php.net/manual/en/function.curl-setopt.php
      *
-     * @param mixed  $opt curl option
+     * @param int  $opt curl option
      * @param mixed  $val curl option value
+     * @throws \InvalidArgumentException
      * @return $this
      */
     public function setCurlOpt($opt, $val)
     {
+        if (!is_int($opt))
+        {
+            throw new \InvalidArgumentException(sprintf(
+                '%s::setCurlOpt - Argument 1 expected to be integer, %s seen.',
+                get_class($this),
+                gettype($opt)
+            ));
+        }
+
         $this->curlOpts[$opt] = $val;
         return $this;
     }
@@ -196,8 +210,10 @@ class CurlPlusClient
      */
     public function setCurlOpts(array $array)
     {
-        foreach($array as $k=>$v)
-            $this->curlOpts[$k] = $v;
+        foreach($array as $opt=>$val)
+        {
+            $this->setCurlOpt($opt, $val);
+        }
 
         return $this;
     }
@@ -264,7 +280,7 @@ class CurlPlusClient
      */
     public function curlOptSet($opt)
     {
-        return isset($this->curlOpts[$opt]);
+        return isset($this->curlOpts[$opt]) || array_key_exists($opt, $this->curlOpts);
     }
 
     /**
@@ -286,14 +302,17 @@ class CurlPlusClient
      *
      * @param bool $resetAfterExecution
      * @throws \RuntimeException
-     * @return \DCarbone\CurlPlus\Response\CurlPlusResponse
+     * @return \DCarbone\CurlPlus\Response\CurlPlusResponseInterface
      */
     public function execute($resetAfterExecution = false)
     {
         if ($this->state === CurlPlusClientState::STATE_NEW)
-            throw new \RuntimeException(
-                get_class($this).'::execute - Could not execute request, curl has not be initialized.'
-            );
+        {
+            throw new \RuntimeException(sprintf(
+                '%s::execute - Could not execute request, curl has not been initialized.',
+                get_class($this)
+            ));
+        }
 
         if ($this->state === CurlPlusClientState::STATE_EXECUTED)
             $this->close();
@@ -310,7 +329,7 @@ class CurlPlusClient
             $headers = array();
             foreach($this->requestHeaders as $k=>$v)
             {
-                $headers[] = "{$k}: {$v}";
+                $headers[] = vsprintf('%s: %s', array($k, $v));
             }
             $this->setCurlOpt(CURLOPT_HTTPHEADER, $headers);
         }
@@ -320,7 +339,7 @@ class CurlPlusClient
             $this->setCurlOpt(CURLINFO_HEADER_OUT, true);
 
         // Output response header into body if body is being returned to memory, rather than output buffer
-        if (!$this->curlOptSet(CURLOPT_HEADER) && $this->getCurlOptValue(CURLOPT_RETURNTRANSFER) == true)
+        if ($this->getCurlOptValue(CURLOPT_RETURNTRANSFER) && !$this->curlOptSet(CURLOPT_HEADER))
             $this->setCurlOpt(CURLOPT_HEADER, true);
 
         // Set the CURLOPTS
@@ -331,7 +350,7 @@ class CurlPlusClient
 
     /**
      * @param bool $resetAfterExecution
-     * @return CurlPlusResponse
+     * @return \DCarbone\CurlPlus\Response\CurlPlusResponseInterface
      */
     protected function createResponse($resetAfterExecution)
     {

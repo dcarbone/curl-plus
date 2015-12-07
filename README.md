@@ -3,9 +3,7 @@ curl-plus
 
 A simple wrapper around PHP's cURL implementation.  It does not do anything magical, and is intended to be as simple as possible
 
-Build status:
-- master: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?branch=master)](https://travis-ci.org/dcarbone/curl-plus)
-- 1.0.1: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?tag=1.0.1)](https://travis-ci.org/dcarbone/curl-plus)
+Build status: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?branch=master)](https://travis-ci.org/dcarbone/curl-plus)
 
 # Installation
 
@@ -17,7 +15,7 @@ you prefer for loading classes into your app.
 Add
 
 ```
-"dcarbone/curl-plus" : "~1.0"
+"dcarbone/curl-plus" : "2.0.*"
 ```
 
 To your application's ``` composer.json ``` file.
@@ -37,22 +35,43 @@ require '/path/to/curl-plus/src/CurlPlusAutoLoader.php';
 CurlPlusAutoLoader::register();
 ```
 
-And now you may simply execute:
+# Using the Helper
+
+To help reduce the amount of code you must write yourself, I have included a small "helper" class
+with a number of public static functions whose names correspond with the request type.
+
+For example:
 
 ```php
-$curlPlusClient = new CurlPlusClient();
+use DCarbone\CurlPlus\CURL;
 
-// Rest of code
+$resp = (string)CURL::get('https://httpbin.org/get');
 ```
 
-...and all classes will be automatically found and loaded by php for use!
+The above will execute a simple GET request against whatever URL you specify, returning a
+[CurlPlusResponse](src/Response/CurlPlusResponse.php) object as the return value.  This can then be
+type-cast to a string to just get the body of the response.
 
-# Basic Usage
+The other available methods on this helper are:
+
+- post
+- head
+- options
+- put
+- delete
+
+You can see the full implementation of this class [here](src/CURL.php).
+
+Keep in mind that the request methods *head* and *options* do NOT return a body, only headers.
+
+# Using the client directly
 
 The most simple implementation of this class would be something like the following:
 
 ```php
-use DCarbone\CurlPlus\CurlPlusClient;
+use DCarbone\CurlPlus\CURL;
+
+$response = (string)CURL::get('http://my-url.etc');
 
 $client = new CurlPlusClient(
     'http://my-url.etc/api',
@@ -64,8 +83,10 @@ $client = new CurlPlusClient(
 // Returns \DCarbone\CurlPlus\Response\CurlPlusResponse object
 $response = $client->execute();
 
-echo $response->getResponse()."\n";
-var_dump($response->getError())."\n";
+echo $response->getResponseBody()."\n";
+var_dump($response->getResponseHeaders());
+var_dump($response->getError());
+echo "\n"
 echo '<pre>';
 var_dump($response->getInfo());
 echo '</pre>';
@@ -102,12 +123,11 @@ public function setCurlOpts(array $array) {}
 
 ...will probably be the ones you use the most often.
 
-## Interface
+### TODO:
 
-On many occasions curl is used as part of another class's operation.  In order to help facilitate this, I have provided an interface for
-your curl-containing class called `ICurlPlusContainer`.
-
-The usage of this interface is optional, and only serves to provide a standard implementation mechanism.
+1. More tests.
+2. More documentation.
+3. Implement request-sensitive response classes.
 
 ### Bumf
 

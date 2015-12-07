@@ -12,15 +12,13 @@
         syntaxCheck="true"
         >
 
-    <testsuite name="CurlOptHelper">
-        <directory>./tests/CurlOptHelper</directory>
-        <exclude>./tests/misc</exclude>
-    </testsuite>
-
-    <testsuite name="CurlPlus">
-        <directory>./tests/CurlPlus</directory>
-        <exclude>./tests/misc</exclude>
-    </testsuite>
+    <testsuites>
+        <testsuite name="allthetests">
+            <file>tests/CurlPlusClientTest.php</file>
+            <file>tests/CurlOptHelperTest.php</file>
+            <file>tests/CURLTest.php</file>
+        </testsuite>
+    </testsuites>
 
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
