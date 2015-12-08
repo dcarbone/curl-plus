@@ -71,8 +71,6 @@ The most simple implementation of this class would be something like the followi
 ```php
 use DCarbone\CurlPlus\CURL;
 
-$response = (string)CURL::get('http://my-url.etc');
-
 $client = new CurlPlusClient(
     'http://my-url.etc/api',
     array(
