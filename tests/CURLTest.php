@@ -34,7 +34,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
     public static $httpbinURL = 'https://httpbin.org';
 
     /**
-     * @covers \DCarbone\CurlPlus\CURL::_init
+     * @covers \DCarbone\CurlPlus\CURL::_execute
      * @covers \DCarbone\CurlPlus\CURL::get
      */
     public function testGetRequestWithNoParams()
@@ -46,7 +46,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \DCarbone\CurlPlus\CURL::_init
+     * @covers \DCarbone\CurlPlus\CURL::_execute
      * @covers \DCarbone\CurlPlus\CURL::get
      */
     public function testGetRequestWithParams()
@@ -67,7 +67,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \DCarbone\CurlPlus\CURL::_init
+     * @covers \DCarbone\CurlPlus\CURL::_execute
      * @covers \DCarbone\CurlPlus\CURL::post
      */
     public function testPostRequest()
@@ -88,7 +88,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \DCarbone\CurlPlus\CURL::_init
+     * @covers \DCarbone\CurlPlus\CURL::_execute
      * @covers \DCarbone\CurlPlus\CURL::post
      */
     public function testPostRequestWithQueryParams()
@@ -96,7 +96,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
         $resp = \DCarbone\CurlPlus\CURL::post(
             sprintf('%s/post', self::$httpbinURL),
             array(
-                'sandwiches' => 'tasty'
+                'sandwiches' => 'post tasty'
             ),
             array(),
             array(
@@ -109,20 +109,20 @@ class CURLTest extends PHPUnit_Framework_TestCase
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('args', $json);
         $this->assertObjectHasAttribute('sandwiches', $json->args);
-        $this->assertEquals('tasty', $json->args->sandwiches);
+        $this->assertEquals('post tasty', $json->args->sandwiches);
     }
 
     /**
-     * @covers \DCarbone\CurlPlus\CURL::_init
+     * @covers \DCarbone\CurlPlus\CURL::_execute
      * @covers \DCarbone\CurlPlus\CURL::post
      */
-    public function testPostRequestWithPostFields()
+    public function testPostRequestWithFormParams()
     {
         $resp = \DCarbone\CurlPlus\CURL::post(
             sprintf('%s/post', self::$httpbinURL),
             array(),
             array(
-                'form key' => 'form value',
+                'post form key' => 'form value',
             ),
             array(
                 CURLOPT_SSL_VERIFYPEER => false
@@ -133,12 +133,12 @@ class CURLTest extends PHPUnit_Framework_TestCase
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('form', $json);
-        $this->assertObjectHasAttribute('form key', $json->form);
-        $this->assertEquals('form value', $json->form->{'form key'});
+        $this->assertObjectHasAttribute('post form key', $json->form);
+        $this->assertEquals('form value', $json->form->{'post form key'});
     }
 
     /**
-     * @covers \DCarbone\CurlPlus\CURL::_init
+     * @covers \DCarbone\CurlPlus\CURL::_execute
      * @covers \DCarbone\CurlPlus\CURL::options
      */
     public function testOptionsRequest()
@@ -152,7 +152,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \DCarbone\CurlPlus\CURL::_init
+     * @covers \DCarbone\CurlPlus\CURL::_execute
      * @covers \DCarbone\CurlPlus\CURL::head
      */
     public function testHeadRequest()
@@ -163,5 +163,141 @@ class CURLTest extends PHPUnit_Framework_TestCase
         $headers = $resp->getResponseHeaders(true);
         $this->assertInternalType('array', $headers);
         $this->assertArrayHasKey('Server', $headers);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CURL::_execute
+     * @covers \DCarbone\CurlPlus\CURL::put
+     */
+    public function testPutRequest()
+    {
+        $resp = \DCarbone\CurlPlus\CURL::put(
+            sprintf('%s/put', self::$httpbinURL),
+            array(),
+            array(),
+            array(CURLOPT_SSL_VERIFYPEER => false));
+
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponseInterface', $resp);
+        $this->assertJson((string)$resp);
+        $json = json_decode((string)$resp);
+        $this->assertObjectHasAttribute('headers', $json);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CURL::_execute
+     * @covers \DCarbone\CurlPlus\CURL::put
+     */
+    public function testPutRequestWithQueryParams()
+    {
+        $resp = \DCarbone\CurlPlus\CURL::put(
+            sprintf('%s/put', self::$httpbinURL),
+            array(
+                'sandwiches' => 'put tasty'
+            ),
+            array(),
+            array(
+                CURLOPT_SSL_VERIFYPEER => false
+            )
+        );
+
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponseInterface', $resp);
+        $this->assertJson((string)$resp);
+        $json = json_decode((string)$resp);
+        $this->assertObjectHasAttribute('args', $json);
+        $this->assertObjectHasAttribute('sandwiches', $json->args);
+        $this->assertEquals('put tasty', $json->args->sandwiches);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CURL::_execute
+     * @covers \DCarbone\CurlPlus\CURL::put
+     */
+    public function testPutRequestWithFormParams()
+    {
+        $resp = \DCarbone\CurlPlus\CURL::put(
+            sprintf('%s/put', self::$httpbinURL),
+            array(),
+            array(
+                'put form key' => 'form value',
+            ),
+            array(
+                CURLOPT_SSL_VERIFYPEER => false
+            )
+        );
+
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponseInterface', $resp);
+        $this->assertJson((string)$resp);
+        $json = json_decode((string)$resp);
+        $this->assertObjectHasAttribute('form', $json);
+        $this->assertObjectHasAttribute('put form key', $json->form);
+        $this->assertEquals('form value', $json->form->{'put form key'});
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CURL::_execute
+     * @covers \DCarbone\CurlPlus\CURL::delete
+     */
+    public function testDeleteRequest()
+    {
+        $resp = \DCarbone\CurlPlus\CURL::delete(
+            sprintf('%s/delete', self::$httpbinURL),
+            array(),
+            array(),
+            array(CURLOPT_SSL_VERIFYPEER => false));
+
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponseInterface', $resp);
+        $this->assertJson((string)$resp);
+        $json = json_decode((string)$resp);
+        $this->assertObjectHasAttribute('headers', $json);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CURL::_execute
+     * @covers \DCarbone\CurlPlus\CURL::delete
+     */
+    public function testDeleteRequestWithQueryParams()
+    {
+        $resp = \DCarbone\CurlPlus\CURL::delete(
+            sprintf('%s/delete', self::$httpbinURL),
+            array(
+                'sandwiches' => 'delete tasty'
+            ),
+            array(),
+            array(
+                CURLOPT_SSL_VERIFYPEER => false
+            )
+        );
+
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponseInterface', $resp);
+        $this->assertJson((string)$resp);
+        $json = json_decode((string)$resp);
+        $this->assertObjectHasAttribute('args', $json);
+        $this->assertObjectHasAttribute('sandwiches', $json->args);
+        $this->assertEquals('delete tasty', $json->args->sandwiches);
+    }
+
+    /**
+     * @covers \DCarbone\CurlPlus\CURL::_execute
+     * @covers \DCarbone\CurlPlus\CURL::delete
+     */
+    public function testDeleteRequestWithFormParams()
+    {
+        $resp = \DCarbone\CurlPlus\CURL::delete(
+            sprintf('%s/delete', self::$httpbinURL),
+            array(),
+            array(
+                'delete form key' => 'form value',
+            ),
+            array(
+                CURLOPT_SSL_VERIFYPEER => false
+            )
+        );
+
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponseInterface', $resp);
+        $this->assertJson((string)$resp);
+        $json = json_decode((string)$resp);
+        $this->assertObjectHasAttribute('form', $json);
+        $this->assertObjectHasAttribute('delete form key', $json->form);
+        $this->assertEquals('form value', $json->form->{'delete form key'});
     }
 }

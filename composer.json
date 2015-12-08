@@ -8,7 +8,7 @@
         "curl"
     ],
     "homepage": "https://github.com/dcarbone/curl-plus",
-    "license": "MIT",
+    "license": "GPL-2.0",
 
     "authors" : [
         {
@@ -23,7 +23,8 @@
     },
 
     "require-dev" : {
-        "phpunit/phpunit": "~4.1"
+        "phpunit/phpunit": "~4.1",
+        "lib-openssl": "*"
     },
 
     "autoload" : {
