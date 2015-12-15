@@ -88,7 +88,7 @@ abstract class CURL
      * @param array $queryParams
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponse
+     * @return Response\CurlPlusResponseInterface
      */
     public static function get($url,
                                array $queryParams = array(),
@@ -111,7 +111,7 @@ abstract class CURL
      * @param array $formFields
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponse
+     * @return Response\CurlPlusResponseInterface
      */
     public static function post($url,
                                 array $queryParams = array(),
@@ -135,7 +135,7 @@ abstract class CURL
      * @param string $url
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponse
+     * @return Response\CurlPlusResponseInterface
      */
     public static function options($url, array $curlOptions = array(), array $requestHeaders = array())
     {
@@ -150,7 +150,7 @@ abstract class CURL
      * @param string $url
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponse
+     * @return Response\CurlPlusResponseInterface
      */
     public static function head($url, array $curlOptions = array(), array $requestHeaders = array())
     {
@@ -167,7 +167,7 @@ abstract class CURL
      * @param array $formFields
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponse
+     * @return Response\CurlPlusResponseInterface
      */
     public static function put($url,
                                array $queryParams = array(),
@@ -193,7 +193,7 @@ abstract class CURL
      * @param array $formFields
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponse
+     * @return Response\CurlPlusResponseInterface
      */
     public static function delete($url,
                                   array $queryParams = array(),

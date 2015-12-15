@@ -23,7 +23,7 @@
  * Class CurlPlusResponse
  * @package DCarbone\CurlPlus\Response
  */
-class CurlPlusResponse implements CurlPlusResponseInterface
+class CurlPlusResponse extends AbstractCurlPlusResponse
 {
     /** @var string */
     protected $responseBody = null;
@@ -31,37 +31,57 @@ class CurlPlusResponse implements CurlPlusResponseInterface
     protected $responseHeaders = null;
 
     /** @var array */
-    protected $requestHeadersArray;
-    /** @var array */
     protected $responseHeadersArray;
 
-    /** @var array */
-    protected $info = null;
-    /** @var string */
-    protected $error = null;
+    /**
+     * @param bool $asArray
+     * @return null|string|array
+     */
+    public function getResponseHeaders($asArray = false)
+    {
+        if ($asArray && null !== $this->responseHeaders)
+        {
+            if (!isset($this->responseHeadersArray))
+                $this->responseHeadersArray = $this->headerStringToArray($this->responseHeaders);
 
-    /** @var integer */
-    protected $httpCode = null;
+            return $this->responseHeadersArray;
+        }
 
-    /** @var array */
-    protected $curlOpts = array();
+        return $this->responseHeaders;
+    }
 
     /**
-     * Constructor
-     *
-     * @param string $response
-     * @param array $info
-     * @param mixed $error
-     * @param array $curlOpts
-     * @return \DCarbone\CurlPlus\Response\CurlPlusResponse
+     * @return string
      */
-    public function __construct($response, $info, $error, array $curlOpts)
+    public function getResponseBody()
     {
-        if (is_string($response) &&
-            isset($curlOpts[CURLOPT_HEADER]) &&
-            $curlOpts[CURLOPT_HEADER] == true &&
-            stripos($response, 'http/') === 0 &&
-            ($pos = strpos($response, "\r\n\r\n")) !== false)
+        return $this->responseBody;
+    }
+
+    /**
+     * Returns response as string
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string)$this->responseBody;
+    }
+
+    /**
+     * @param mixed $response
+     */
+    protected function parseResponse($response)
+    {
+        if (isset($this->curlOpts[CURLOPT_NOBODY]) && $this->curlOpts[CURLOPT_NOBODY] == true)
+        {
+            $this->responseBody = null;
+            if (isset($this->curlOpts[CURLOPT_HEADER]) && $this->curlOpts[CURLOPT_HEADER])
+                $this->responseHeaders = $response;
+            else
+                $this->responseHeaders = null;
+        }
+        else if (is_string($response) && isset($this->curlOpts[CURLOPT_HEADER]) && $this->curlOpts[CURLOPT_HEADER] == true)
         {
             $responseHeaderString = '';
             while (stripos($response, 'http/') === 0 && ($pos = strpos($response, "\r\n\r\n")) !== false)
@@ -79,140 +99,8 @@ class CurlPlusResponse implements CurlPlusResponseInterface
         }
         else
         {
+            $this->responseHeaders = null;
             $this->responseBody = $response;
         }
-
-        $this->info = $info;
-        $this->error = $error;
-
-        if (isset($this->info['http_code']))
-            $this->httpCode = (int)$this->info['http_code'];
-
-        $this->curlOpts = $curlOpts;
-    }
-
-    /**
-     * Get CURL error
-     *
-     * @name getError
-     * @access public
-     * @return Mixed
-     */
-    public function getError()
-    {
-        return $this->error;
-    }
-
-    /**
-     * Get CURL info
-     *
-     * @name getInfo
-     * @access public
-     * @return array
-     */
-    public function getInfo()
-    {
-        return $this->info;
-    }
-
-    /**
-     * @deprecated Since 2.0: Use getResponseBody instead
-     *
-     * @return mixed
-     */
-    public function getResponse()
-    {
-        return $this->getResponseBody();
-    }
-
-    /**
-     * @return string
-     */
-    public function getResponseBody()
-    {
-        return $this->responseBody;
-    }
-
-    /**
-     * Return response HTTP code
-     *
-     * @return int
-     */
-    public function getHttpCode()
-    {
-        return $this->httpCode;
-    }
-
-    /**
-     * @param bool $asArray
-     * @return array|null
-     */
-    public function getRequestHeaders($asArray = false)
-    {
-        if (isset($this->info['request_header']))
-        {
-            if ($asArray)
-            {
-                if (!isset($this->requestHeadersArray))
-                    $this->requestHeadersArray = $this->_parseHeaders($this->info['request_header']);
-
-                return $this->requestHeadersArray;
-            }
-            return $this->info['request_header'];
-        }
-
-        return null;
-    }
-
-    /**
-     * @param bool $asArray
-     * @return null|string
-     */
-    public function getResponseHeaders($asArray = false)
-    {
-        if ($asArray)
-        {
-            if (!isset($this->responseHeadersArray))
-                $this->responseHeadersArray = $this->_parseHeaders($this->responseHeaders);
-
-            return $this->responseHeadersArray;
-        }
-
-        return $this->responseHeaders;
-    }
-
-    /**
-     * Returns response as string
-     *
-     * @name __toString
-     * @return string  curl response string
-     */
-    public function __toString()
-    {
-        return (string)$this->responseBody;
-    }
-
-    /**
-     * Create associative array of response header string
-     * @param $headerString
-     * @return array
-     */
-    private function _parseHeaders($headerString)
-    {
-        $tmp = array();
-        foreach(explode("\r\n", $headerString) as $header)
-        {
-            if (strpos($header, ':') === false)
-            {
-                $tmp[] = $header;
-            }
-            else
-            {
-                list($name, $value) = explode(':', $header, 2);
-                $tmp[trim($name)] = trim($value);
-            }
-        }
-
-        return array_filter($tmp);
     }
 }

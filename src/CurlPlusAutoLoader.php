@@ -28,7 +28,7 @@ class CurlPlusAutoLoader
     const ROOT_DIRECTORY_OF_CONCERN = __DIR__;
 
     /** @var boolean */
-    private static $registered = false;
+    private static $_registered = false;
 
     /**
      * Register the autoloader in the spl autoloader
@@ -38,10 +38,10 @@ class CurlPlusAutoLoader
      */
     public static function register()
     {
-        if (self::$registered)
-            return self::$registered;
+        if (self::$_registered)
+            return self::$_registered;
 
-        return self::$registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
+        return self::$_registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
     }
 
     /**
@@ -51,8 +51,8 @@ class CurlPlusAutoLoader
      */
     public static function unregister()
     {
-        self::$registered = !spl_autoload_unregister(array(__CLASS__, 'loadClass'));
-        return !self::$registered;
+        self::$_registered = !spl_autoload_unregister(array(__CLASS__, 'loadClass'));
+        return !self::$_registered;
     }
 
     /**

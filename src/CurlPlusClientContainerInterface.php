@@ -20,10 +20,10 @@
  */
 
 /**
- * Interface CurlPlusContainerInterface
+ * Interface CurlPlusClientContainerInterface
  * @package DCarbone\CurlPlus
  */
-interface CurlPlusContainerInterface
+interface CurlPlusClientContainerInterface
 {
     /**
      * @return CurlPlusClient

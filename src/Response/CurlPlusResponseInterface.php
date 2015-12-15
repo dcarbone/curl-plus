@@ -26,11 +26,6 @@
 interface CurlPlusResponseInterface
 {
     /**
-     * @return mixed
-     */
-    public function getResponseBody();
-
-    /**
      * @return array
      */
     public function getInfo();
@@ -52,10 +47,9 @@ interface CurlPlusResponseInterface
     public function getRequestHeaders($asArray = false);
 
     /**
-     * @param bool $asArray
-     * @return null|string
+     * @return array
      */
-    public function getResponseHeaders($asArray = false);
+    public function getRequestCurlOpts();
 
     /**
      * @return string

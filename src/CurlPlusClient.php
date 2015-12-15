@@ -19,6 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+use DCarbone\CurlPlus\Response\CurlPlusFileResponse;
 use DCarbone\CurlPlus\Response\CurlPlusResponse;
 
 /**
@@ -334,11 +335,13 @@ class CurlPlusClient
             $this->setCurlOpt(CURLOPT_HTTPHEADER, $headers);
         }
 
-        // Return the Header info unless they specify otherwise
+        // Return the Request Header as part of the curl_info array unless they specify otherwise
         if (!$this->curlOptSet(CURLINFO_HEADER_OUT))
             $this->setCurlOpt(CURLINFO_HEADER_OUT, true);
 
-        // Output response header into body if body is being returned to memory, rather than output buffer
+        // If the user has opted to return the data, rather than save to file or output directly,
+        // attempt to get headers back in the response for later use if they have not specified
+        // otherwise.
         if ($this->getCurlOptValue(CURLOPT_RETURNTRANSFER) && !$this->curlOptSet(CURLOPT_HEADER))
             $this->setCurlOpt(CURLOPT_HEADER, true);
 
@@ -349,6 +352,8 @@ class CurlPlusClient
     }
 
     /**
+     * TODO: Come up with a better way to create response classes
+     *
      * @param bool $resetAfterExecution
      * @return \DCarbone\CurlPlus\Response\CurlPlusResponseInterface
      */
@@ -356,11 +361,23 @@ class CurlPlusClient
     {
         $this->state = CurlPlusClientState::STATE_EXECUTING;
 
-        $response = new CurlPlusResponse(
-            curl_exec($this->ch),
-            curl_getinfo($this->ch),
-            curl_error($this->ch),
-            $this->curlOpts);
+        if (is_resource($this->getCurlOptValue(CURLOPT_FILE)))
+        {
+            $response = new CurlPlusFileResponse(
+                curl_exec($this->ch),
+                curl_getinfo($this->ch),
+                curl_error($this->ch),
+                $this->curlOpts
+            );
+        }
+        else
+        {
+            $response = new CurlPlusResponse(
+                curl_exec($this->ch),
+                curl_getinfo($this->ch),
+                curl_error($this->ch),
+                $this->curlOpts);
+        }
 
         $this->state = CurlPlusClientState::STATE_EXECUTED;
 

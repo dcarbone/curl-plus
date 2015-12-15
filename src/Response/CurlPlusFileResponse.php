@@ -1,4 +1,4 @@
-<?php namespace DCarbone\CurlPlus;
+<?php namespace DCarbone\CurlPlus\Response;
 
 /*
     CurlPlus: A simple OO implementation of CURL in PHP
@@ -20,12 +20,39 @@
  */
 
 /**
- * @deprecated Since 2.0: Use CurlPlusClientContainerInterface instead
- *
- * Interface ICurlPlusClientContainer
- * @package DCarbone\CurlPlus
+ * Class CurlPlusFileResponse
+ * @package DCarbone\CurlPlus\Response
  */
-interface ICurlPlusClientContainer extends CurlPlusClientContainerInterface
+class CurlPlusFileResponse extends AbstractCurlPlusResponse
 {
+    /** @var string */
+    protected $outputFile = null;
 
+    /**
+     * @return string
+     */
+    public function getOutputFile()
+    {
+        return $this->outputFile;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->outputFile;
+    }
+
+    /**
+     * @param mixed $response
+     */
+    protected function parseResponse($response)
+    {
+        if (isset($this->curlOpts[CURLOPT_FILE]) && is_resource($this->curlOpts[CURLOPT_FILE]))
+        {
+            $meta = stream_get_meta_data($this->curlOpts[CURLOPT_FILE]);
+            $this->outputFile = $meta['uri'];
+        }
+    }
 }

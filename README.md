@@ -49,7 +49,7 @@ $resp = (string)CURL::get('https://httpbin.org/get');
 ```
 
 The above will execute a simple GET request against whatever URL you specify, returning a
-[CurlPlusResponse](src/Response/CurlPlusResponse.php) object as the return value.  This can then be
+[CurlPlusResponse](src/CurlPlusResponse/CurlPlusResponse.php) object as the return value.  This can then be
 type-cast to a string to just get the body of the response.
 
 The other available methods on this helper are:
@@ -78,7 +78,7 @@ $client = new CurlPlusClient(
     ));
 
 
-// Returns \DCarbone\CurlPlus\Response\CurlPlusResponse object
+// Returns \DCarbone\CurlPlus\CurlPlusResponse\CurlPlusResponse object
 $response = $client->execute();
 
 echo $response->getResponseBody()."\n";
