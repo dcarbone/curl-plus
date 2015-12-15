@@ -17,6 +17,7 @@
             <file>tests/CurlPlusClientTest.php</file>
             <file>tests/CurlOptHelperTest.php</file>
             <file>tests/CURLTest.php</file>
+            <exclude>tests/inc</exclude>
         </testsuite>
     </testsuites>
 
