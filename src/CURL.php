@@ -38,7 +38,7 @@ abstract class CURL
     private static $_defaultPostCurlOpts = array(
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
+        CURLOPT_POST => true
     );
     /** @var array */
     private static $_defaultPostRequestHeaders = array(
@@ -50,7 +50,7 @@ abstract class CURL
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CUSTOMREQUEST => 'OPTIONS',
-        CURLOPT_NOBODY => true,
+        CURLOPT_NOBODY => true
     );
 
     /** @var array */
@@ -58,7 +58,7 @@ abstract class CURL
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CUSTOMREQUEST => 'HEAD',
-        CURLOPT_NOBODY => true,
+        CURLOPT_NOBODY => true
     );
 
     /** @var array */
@@ -100,7 +100,7 @@ abstract class CURL
 
         return self::_execute(
             $url,
-            $curlOptions + self::$_defaultGetCurlOpts,
+            ($curlOptions + self::$_defaultGetCurlOpts),
             $requestHeaders
         );
     }
@@ -124,10 +124,10 @@ abstract class CURL
 
         return self::_execute(
             $url,
-            $curlOptions +
+            ($curlOptions +
             array(CURLOPT_POSTFIELDS => http_build_query($formFields)) +
-            self::$_defaultPostCurlOpts,
-            $requestHeaders + self::$_defaultPostRequestHeaders
+            self::$_defaultPostCurlOpts),
+            ($requestHeaders + self::$_defaultPostRequestHeaders)
         );
     }
 
@@ -141,7 +141,7 @@ abstract class CURL
     {
         return self::_execute(
             $url,
-            $curlOptions + self::$_defaultOptionsCurlOpts,
+            ($curlOptions + self::$_defaultOptionsCurlOpts),
             $requestHeaders
         );
     }
@@ -156,7 +156,7 @@ abstract class CURL
     {
         return self::_execute(
             $url,
-            $curlOptions + self::$_defaultHeadCurlOpts,
+            ($curlOptions + self::$_defaultHeadCurlOpts),
             $requestHeaders
         );
     }
@@ -180,10 +180,10 @@ abstract class CURL
 
         return self::_execute(
             $url,
-            $curlOptions +
+            ($curlOptions +
             array(CURLOPT_POSTFIELDS => http_build_query($formFields)) +
-            self::$_defaultPutCurlOpts,
-            $requestHeaders + self::$_defaultPutRequestHeaders
+            self::$_defaultPutCurlOpts),
+            ($requestHeaders + self::$_defaultPutRequestHeaders)
         );
     }
 
@@ -206,10 +206,10 @@ abstract class CURL
 
         return self::_execute(
             $url,
-            $curlOptions +
+            ($curlOptions +
             array(CURLOPT_POSTFIELDS => http_build_query($formFields)) +
-            self::$_defaultDeleteCurlOpts,
-            $requestHeaders + self::$_defaultDeleteRequestHeaders
+            self::$_defaultDeleteCurlOpts),
+            ($requestHeaders + self::$_defaultDeleteRequestHeaders)
         );
     }
 
