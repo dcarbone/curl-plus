@@ -237,7 +237,7 @@ class CurlPlusClient
      */
     public function removeCurlOpt($opt)
     {
-        if (isset($this->curlOpts[$opt]))
+        if ($this->curlOptSet($opt))
             unset($this->curlOpts[$opt]);
 
         return $this;
