@@ -15,7 +15,7 @@ you prefer for loading classes into your app.
 Add
 
 ```
-"dcarbone/curl-plus" : "2.0.*"
+"dcarbone/curl-plus" : "2.1.*"
 ```
 
 To your application's ``` composer.json ``` file.
