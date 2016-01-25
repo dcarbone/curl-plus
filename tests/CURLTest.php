@@ -29,10 +29,10 @@ class CURLTest extends PHPUnit_Framework_TestCase
      */
     public function testGetRequestWithNoParams()
     {
-        $resp = \DCarbone\CurlPlus\CURL::get(CPParameters::$smallResponse);
+        $resp = \DCarbone\CurlPlus\CURL::get(CPParameters::$smallResponse, array(), array(CURLOPT_SSL_VERIFYPEER => false));
 
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
-        $this->assertRegExp('/^[0-9\.]+$/', (string)$resp);
+        $this->assertEquals('<html><head><title>Links</title></head><body>0 </body></html>', (string)$resp);
     }
 
     /**

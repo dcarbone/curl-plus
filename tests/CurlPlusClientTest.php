@@ -492,7 +492,13 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanParseResponseHeadersOutOfResponseBody()
     {
-        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::$smallResponse, array(CURLOPT_RETURNTRANSFER => true));
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(
+            CPParameters::$smallResponse,
+            array(
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false
+            )
+        );
 
         $response = $curlClient->execute();
 
@@ -505,7 +511,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
         $data = $response->getResponseBody();
 
         $this->assertInternalType('string', $data);
-        $this->assertRegExp('/^[1-9]+\.[0-9]+\.[0-9]+/', $data);
+        $this->assertEquals('<html><head><title>Links</title></head><body>0 </body></html>', $data);
     }
 
     /**

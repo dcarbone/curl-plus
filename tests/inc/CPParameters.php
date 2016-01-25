@@ -26,7 +26,7 @@ abstract class CPParameters
     /** @var string */
     public static $jquery2_1 = 'http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js';
     /** @var string */
-    public static $smallResponse = 'http://api.gvmtool.net/candidates/grails/default';
+    public static $smallResponse = 'https://httpbin.org/links/1/0';
     /** @var string */
     public static $httpbinURL = 'https://httpbin.org';
     /** @var string */
