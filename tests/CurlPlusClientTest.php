@@ -46,8 +46,6 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
             $f = sprintf('%s/%s', CPParameters::$tmpDir, CPParameters::$localTamalesFileName);
             if (file_exists($f))
                 @unlink($f);
-
-            @unlink(CPParameters::$tmpDir);
         }
     }
 
@@ -431,8 +429,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::execute
-     * @covers \DCarbone\CurlPlus\CurlPlusClient::createResponse
-     * @covers \DCarbone\CurlPlus\Response\CurlPlusResponse::__construct
+     * @covers \DCarbone\CurlPlus\CurlPlusResponse::__construct
      */
     public function testCanExecuteQueryDirectlyToOutputBufferWithoutResetting()
     {
@@ -487,8 +484,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::execute
-     * @covers \DCarbone\CurlPlus\Response\CurlPlusResponse::getResponseHeaders
-     * @covers \DCarbone\CurlPlus\Response\CurlPlusResponse::__construct
+     * @covers \DCarbone\CurlPlus\CurlPlusResponse::__construct
      */
     public function testCanParseResponseHeadersOutOfResponseBody()
     {
@@ -502,13 +498,12 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
 
         $response = $curlClient->execute();
 
-        $responseHeaders = $response->getResponseHeaders();
+        $responseHeaders = $response->responseHeaders;
+        $this->assertInternalType('array', $responseHeaders);
+        $lastHeader = end($responseHeaders);
+        $this->assertContains('HTTP/1.1 200 OK', $lastHeader);
 
-        $this->assertInternalType('string', $responseHeaders);
-        $this->assertStringStartsWith('HTTP/1.1 200 OK', $responseHeaders);
-        $this->assertStringEndsWith("\r\n\r\n", $responseHeaders);
-
-        $data = $response->getResponseBody();
+        $data = $response->responseBody;
 
         $this->assertInternalType('string', $data);
         $this->assertEquals('<html><head><title>Links</title></head><body>0 </body></html>', $data);
@@ -548,7 +543,6 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::execute
-     * @covers \DCarbone\CurlPlus\CurlPlusClient::createResponse
      */
     public function testGetFileResponseWithFileRequest()
     {
@@ -563,8 +557,8 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
             $client->setCurlOpt(CURLOPT_FILE, $fh);
             $response = $client->execute(true);
 
-            $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusFileResponse', $response);
-            $this->assertEquals($f, $response->getOutputFile());
+            $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $response);
+            $this->assertEquals($f, $response->filename);
 
             fclose($fh);
         }

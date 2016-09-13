@@ -1,0 +1,5 @@
+/.idea
+/*.iml
+/vendor
+/composer.lock
+/test-reports

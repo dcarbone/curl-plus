@@ -5,51 +5,110 @@ A simple wrapper around PHP's cURL implementation.  It does not do anything magi
 
 Build status: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?branch=master)](https://travis-ci.org/dcarbone/curl-plus)
 
-# Installation
+## Installation
 
-For convenience, I have provided two primary methods for usage within your application.  You can of course use whatever mechanism
-you prefer for loading classes into your app.
+This lib is designed to be used with [Composer](https://getcomposer.org/)
 
-## Inclusion in your Composer app
+"require" entry:
 
-Add
-
+```json
+{
+    "dcarbone/curl-plus" : "3.0.*"
+}
 ```
-"dcarbone/curl-plus" : "2.1.*"
-```
 
-To your application's ``` composer.json ``` file.
+## CurlPlus Helper
 
-Learn more about Composer here: <a href="https://getcomposer.org/">https://getcomposer.org/</a>
+To make executing and retrieving data from HTTP requests easier, I have created the [CURL](./src/CURL.php) helper
+class.
 
-## Inclusion in Non-composer app
+### Helper Basics:
 
-In case you do not wish to use Composer to manage your dependencies, I have included an AutoLoader class for your
-convenience.
+All of the methods present below have a few default CURL options set, that you can override if needed:
 
-Copy the **/src** directory to your location of choice, then execute:
+- With the exception of HEAD and OPTIONS requests, all methods set ` CURLOPT_RETURNTRANSFER ` to true by default.
+- ALL methods set ` CURLOPT_FOLLOWLOCATION ` to true by default.
+- POST, PUT, and DELETE requests specify a default Request Content-Type header value of 
+` application/x-www-form-urlencoded `
+- POST, PUT, and DELETE requests allow specification of a request body.  This may either be a string,
+or associative array of "param" => "value", or an object.  It will be turned into a string utilizing
+[http_build_query](http://php.net/manual/en/function.http-build-query.php).
+- ALL methods return an instance [CurlPlusResponse](./src/Response/CurlPlusResponse.php)
+- ALL methods allow overriding of CURLOPT and Request Header values used via optional array arguments.
+These will be merged with the defaults, with user-specified values receiving preference.
+
+### Usage Basics
+
+This class is as close as PHP gets to a "static" class.  It is abstract, and therefore cannot be
+instantiated on its own, and is intended to be used as such:
 
 ```php
-require '/path/to/curl-plus/src/CurlPlusAutoLoader.php';
+use DCarbone\CurlPlus\CURL;
 
-CurlPlusAutoLoader::register();
+$response = CURL::get('http://www.gstatic.com/hostedimg/6ce955e0e2197bb6_large');
+
+$image = imagecreatefromstring((string)$response);
+
+header('Content-Type: image/jpeg');
+imagepng($image);
+imagedestroy($image);
 ```
 
-# Usage
+The above will download photographic evidence of life saving tamales and output the image.
 
-There are two ways you can use this library:
+Check out the source of [CURL](./src/CURL.php) to get a better look at all available methods and arguments.
 
-1. The [CURL Helper](documentation/HELPER.md)
-2. The [CurlPlusClient](documentation/CLIENT.md)
+## Using the client directly
 
-### TODO:
+The most simple implementation of this class would be something like the following:
 
-1. More tests.
-2. More documentation.
-3. Implement request-sensitive response classes.
+```php
+use DCarbone\CurlPlus\CURL;
 
-### Bumf
+$client = new CurlPlusClient(
+    'http://my-url.etc/api',
+    array(
+        CURLOPT_RETURNTRANSFER => true,
+    ));
 
-If you have any suggestions or criticisms of this library, things I could do to make it more useful for you, etc, please let me know.
 
-I always enjoy a good challenge :)
+// Returns \DCarbone\CurlPlus\CurlPlusResponse object
+$response = $client->execute();
+
+echo $response->responseBody."\n";
+var_dump($response->responseHeaders);
+var_dump($response->error);
+```
+
+The above will simply execute a GET request and store the response in memory, rather than in the output buffer.
+
+### Constructor
+
+The CurlPlusClient constructor takes 3 optional arguments:
+
+* **$url** - string, the query endpoint
+* **$curlOpts** - array, set of CURLOPT_ values
+* **$requestHeaders** - array, associative array of $param=>$value strings that will be sent in the request
+
+These are all optional parameters.
+
+**Note**: If you set both the **$url** and CURLOPT_URL properties on construction, the constructor will use to the CURLOPT_URL value.
+
+As stated above, all of those are optional arguments.  You may simply construct the object with no params if you wish.
+
+Post-construct, the methods:
+
+```php
+// Set the URL you wish to query against, additionally you may also reset any existing curl opts
+public function initialize($url, $reset = true) {}
+
+// Accepts any options seen here: http://www.php.net//manual/en/function.curl-setopt.php
+public function setCurlOpt($opt, $val) {}
+
+// Accepts an associative array of Curl Opts
+public function setCurlOpts(array $array) {}
+```
+
+...will probably be the ones you use the most often.
+
+Check out the [CurlPlusClient source](./src/CurlPlusClient.php) for more information.

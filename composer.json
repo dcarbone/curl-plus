@@ -2,34 +2,32 @@
     "name" : "dcarbone/curl-plus",
     "type" : "library",
     "description" : "Object wrapper for PHP's CURL Library",
-
-    "keywords": [
-        "php",
-        "curl"
-    ],
-    "homepage": "https://github.com/dcarbone/curl-plus",
     "license": "Apache-2.0",
-
+    "homepage": "https://github.com/dcarbone/curl-plus",
     "authors" : [
         {
             "name" : "Daniel Carbone",
             "email" : "daniel.p.carbone@gmail.com"
         }
     ],
+    "keywords": [
+        "php",
+        "curl"
+    ],
+    "autoload" : {
+        "psr-4" : {
+            "DCarbone\\CurlPlus\\" : "src/"
+        }
+    },
 
     "require" : {
-        "php" : ">=5.3.3",
-        "lib-curl" : "*"
+        "php" : ">=5.4.0",
+        "lib-curl" : "*",
+        "dcarbone/curl-header-extractor": "2.0.*"
     },
 
     "require-dev" : {
         "phpunit/phpunit": "~4.1",
         "lib-openssl": "*"
-    },
-
-    "autoload" : {
-        "psr-4" : {
-            "DCarbone\\CurlPlus\\" : "src/"
-        }
     }
 }

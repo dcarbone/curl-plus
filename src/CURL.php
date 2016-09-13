@@ -83,7 +83,7 @@ abstract class CURL
      * @param array $queryParams
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponseInterface
+     * @return CurlPlusResponse
      */
     public static function get($url,
                                array $queryParams = array(),
@@ -108,7 +108,7 @@ abstract class CURL
      * @param string|array|object $requestBody
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponseInterface
+     * @return CurlPlusResponse
      */
     public static function post($url,
                                 array $queryParams = array(),
@@ -134,7 +134,7 @@ abstract class CURL
      * @param string $url
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponseInterface
+     * @return CurlPlusResponse
      */
     public static function options($url, array $curlOptions = array(), array $requestHeaders = array())
     {
@@ -151,7 +151,7 @@ abstract class CURL
      * @param string $url
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponseInterface
+     * @return CurlPlusResponse
      */
     public static function head($url, array $curlOptions = array(), array $requestHeaders = array())
     {
@@ -170,7 +170,7 @@ abstract class CURL
      * @param string|array|object $requestBody
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponseInterface
+     * @return CurlPlusResponse
      */
     public static function put($url,
                                array $queryParams = array(),
@@ -198,7 +198,7 @@ abstract class CURL
      * @param string|array|object $requestBody
      * @param array $curlOptions
      * @param array $requestHeaders
-     * @return Response\CurlPlusResponseInterface
+     * @return CurlPlusResponse
      */
     public static function delete($url,
                                   array $queryParams = array(),
@@ -221,6 +221,17 @@ abstract class CURL
     }
 
     /**
+     * On-load init method
+     */
+    public static function _init()
+    {
+        if (isset(self::$_client))
+            return;
+
+        self::$_client = new CurlPlusClient();
+    }
+
+    /**
      * @param string $url
      * @param string $method
      * @param array $userOpts
@@ -228,7 +239,7 @@ abstract class CURL
      * @param array $userHeaders
      * @param array $defaultHeaders
      * @param string|array|object $requestBody
-     * @return Response\CurlPlusResponseInterface
+     * @return CurlPlusResponse
      */
     private static function _execute($url,
                                      $method,
@@ -238,10 +249,6 @@ abstract class CURL
                                      array $defaultHeaders = array(),
                                      $requestBody = null)
     {
-
-        if (!isset(self::$_client))
-            self::$_client = new CurlPlusClient();
-
         self::$_client->initialize($url);
 
         switch($method)
@@ -257,11 +264,13 @@ abstract class CURL
                 $defaultOpts[CURLOPT_CUSTOMREQUEST] = $method;
         }
 
+        $bodyType = gettype($requestBody);
+
         if (null !== $requestBody
             && in_array($method, self::$_methodsWithBody)
             && !isset($userOpts[CURLOPT_POSTFIELDS]))
         {
-            if (is_array($requestBody) || is_object($requestBody))
+            if ('array' === $bodyType || 'object' === $bodyType)
                 $requestBody = http_build_query($requestBody);
 
             $defaultOpts[CURLOPT_POSTFIELDS] = $requestBody;
@@ -273,3 +282,4 @@ abstract class CURL
         return self::$_client->execute(true);
     }
 }
+CURL::_init();

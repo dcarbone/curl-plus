@@ -31,7 +31,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
     {
         $resp = \DCarbone\CurlPlus\CURL::get(CPParameters::$smallResponse, array(), array(CURLOPT_SSL_VERIFYPEER => false));
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertEquals('<html><head><title>Links</title></head><body>0 </body></html>', (string)$resp);
     }
 
@@ -52,7 +52,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
     }
 
@@ -71,7 +71,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('headers', $json);
@@ -94,7 +94,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('args', $json);
@@ -119,7 +119,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('form', $json);
@@ -135,8 +135,8 @@ class CURLTest extends PHPUnit_Framework_TestCase
     {
         $resp = \DCarbone\CurlPlus\CURL::options(CPParameters::$httpbinURL, array(CURLOPT_SSL_VERIFYPEER => false));
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
-        $headers = $resp->getResponseHeaders(true);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
+        $headers = $resp->responseHeaders;
         $this->assertInternalType('array', $headers);
         $this->assertCount(1, $headers);
         $this->assertInternalType('array', $headers[0]);
@@ -151,8 +151,8 @@ class CURLTest extends PHPUnit_Framework_TestCase
     {
         $resp = \DCarbone\CurlPlus\CURL::head(CPParameters::$httpbinURL, array(CURLOPT_SSL_VERIFYPEER => false));
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
-        $headers = $resp->getResponseHeaders(true);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
+        $headers = $resp->responseHeaders;
         $this->assertInternalType('array', $headers);
         $this->assertCount(1, $headers);
         $this->assertInternalType('array', $headers[0]);
@@ -171,7 +171,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             array(),
             array(CURLOPT_SSL_VERIFYPEER => false));
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('headers', $json);
@@ -194,7 +194,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('args', $json);
@@ -219,7 +219,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('form', $json);
@@ -239,7 +239,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             array(),
             array(CURLOPT_SSL_VERIFYPEER => false));
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('headers', $json);
@@ -262,7 +262,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('args', $json);
@@ -287,7 +287,7 @@ class CURLTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\Response\\CurlPlusResponse', $resp);
+        $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertJson((string)$resp);
         $json = json_decode((string)$resp);
         $this->assertObjectHasAttribute('form', $json);
