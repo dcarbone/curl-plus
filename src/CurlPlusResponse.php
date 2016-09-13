@@ -429,8 +429,8 @@ class CurlPlusResponse
     public function __toString()
     {
         if (isset($this->filename))
-            return $this->filename;
+            return (string)$this->filename;
 
-        return $this->responseBody;
+        return (string)$this->responseBody;
     }
 }
