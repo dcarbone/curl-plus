@@ -33,7 +33,7 @@ All of the methods present below have a few default CURL options set, that you c
 - POST, PUT, and DELETE requests allow specification of a request body.  This may either be a string,
 or associative array of "param" => "value", or an object.  It will be turned into a string utilizing
 [http_build_query](http://php.net/manual/en/function.http-build-query.php).
-- ALL methods return an instance [CurlPlusResponse](./src/Response/CurlPlusResponse.php)
+- ALL methods return an instance [CurlPlusResponse](./src/CurlPlusResponse.php)
 - ALL methods allow overriding of CURLOPT and Request Header values used via optional array arguments.
 These will be merged with the defaults, with user-specified values receiving preference.
 
