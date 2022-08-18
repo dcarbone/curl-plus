@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/inc/CPParameters.php';
+namespace DCarbone\CurlPlus\Tests;
 
 /*
     Copyright 2012-2022  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
@@ -18,10 +18,14 @@ require_once __DIR__ . '/inc/CPParameters.php';
     limitations under the License.
  */
 
+use DCarbone\CurlPlus\CURL;
+use DCarbone\CurlPlus\Tests\Utils\CPParameters;
+use PHPUnit\Framework\TestCase;
+
 /**
  * Class CURLTest
  */
-class CURLTest extends \PHPUnit\Framework\TestCase
+class CURLTest extends TestCase
 {
     /**
      * @covers \DCarbone\CurlPlus\CURL::_execute
@@ -29,7 +33,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetRequestWithNoParams()
     {
-        $resp = \DCarbone\CurlPlus\CURL::get(CPParameters::SMALL_RESPONSE, [], [CURLOPT_SSL_VERIFYPEER => false]);
+        $resp = CURL::get(CPParameters::SMALL_RESPONSE, [], [CURLOPT_SSL_VERIFYPEER => false]);
 
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $this->assertEquals('<html><head><title>Links</title></head><body>0 </body></html>', (string)$resp);
@@ -41,7 +45,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetRequestWithParams()
     {
-        $resp = \DCarbone\CurlPlus\CURL::get(
+        $resp = CURL::get(
             sprintf('%s/response-headers', CPParameters::HTTPBIN_URL),
             [
                 'Content-Type' => 'text/plain; charset=UTF-8',
@@ -62,7 +66,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testPostRequest()
     {
-        $resp = \DCarbone\CurlPlus\CURL::post(
+        $resp = CURL::post(
             sprintf('%s/post', CPParameters::HTTPBIN_URL),
             [],
             [],
@@ -83,7 +87,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testPostRequestWithQueryParams()
     {
-        $resp = \DCarbone\CurlPlus\CURL::post(
+        $resp = CURL::post(
             sprintf('%s/post', CPParameters::HTTPBIN_URL),
             [
                 'sandwiches' => 'post tasty'
@@ -108,7 +112,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testPostRequestWithFormParams()
     {
-        $resp = \DCarbone\CurlPlus\CURL::post(
+        $resp = CURL::post(
             sprintf('%s/post', CPParameters::HTTPBIN_URL),
             [],
             [
@@ -133,7 +137,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testOptionsRequest()
     {
-        $resp = \DCarbone\CurlPlus\CURL::options(CPParameters::HTTPBIN_URL, [CURLOPT_SSL_VERIFYPEER => false]);
+        $resp = CURL::options(CPParameters::HTTPBIN_URL, [CURLOPT_SSL_VERIFYPEER => false]);
 
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $headers = $resp->responseHeaders;
@@ -149,7 +153,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testHeadRequest()
     {
-        $resp = \DCarbone\CurlPlus\CURL::head(CPParameters::HTTPBIN_URL, [CURLOPT_SSL_VERIFYPEER => false]);
+        $resp = CURL::head(CPParameters::HTTPBIN_URL, [CURLOPT_SSL_VERIFYPEER => false]);
 
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusResponse', $resp);
         $headers = $resp->responseHeaders;
@@ -165,7 +169,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testPutRequest()
     {
-        $resp = \DCarbone\CurlPlus\CURL::put(
+        $resp = CURL::put(
             sprintf('%s/put', CPParameters::HTTPBIN_URL),
             [],
             [],
@@ -183,7 +187,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testPutRequestWithQueryParams()
     {
-        $resp = \DCarbone\CurlPlus\CURL::put(
+        $resp = CURL::put(
             sprintf('%s/put', CPParameters::HTTPBIN_URL),
             [
                 'sandwiches' => 'put tasty'
@@ -208,7 +212,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testPutRequestWithFormParams()
     {
-        $resp = \DCarbone\CurlPlus\CURL::put(
+        $resp = CURL::put(
             sprintf('%s/put', CPParameters::HTTPBIN_URL),
             [],
             [
@@ -233,7 +237,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testDeleteRequest()
     {
-        $resp = \DCarbone\CurlPlus\CURL::delete(
+        $resp = CURL::delete(
             sprintf('%s/delete', CPParameters::HTTPBIN_URL),
             [],
             [],
@@ -251,7 +255,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testDeleteRequestWithQueryParams()
     {
-        $resp = \DCarbone\CurlPlus\CURL::delete(
+        $resp = CURL::delete(
             sprintf('%s/delete', CPParameters::HTTPBIN_URL),
             [
                 'sandwiches' => 'delete tasty'
@@ -276,7 +280,7 @@ class CURLTest extends \PHPUnit\Framework\TestCase
      */
     public function testDeleteRequestWithFormParams()
     {
-        $resp = \DCarbone\CurlPlus\CURL::delete(
+        $resp = CURL::delete(
             sprintf('%s/delete', CPParameters::HTTPBIN_URL),
             [],
             [

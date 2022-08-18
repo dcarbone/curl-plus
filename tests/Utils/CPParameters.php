@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace DCarbone\CurlPlus\Tests\Utils;
+
 /*
     Copyright 2012-2022  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
 
