@@ -3,7 +3,7 @@ curl-plus
 
 A simple wrapper around PHP's cURL implementation.  It does not do anything magical, and is intended to be as simple as possible
 
-Build status: [![Build Status](https://travis-ci.org/dcarbone/curl-plus.svg?branch=master)](https://travis-ci.org/dcarbone/curl-plus)
+[![Tests](https://github.com/dcarbone/curl-plus/actions/workflows/tests.yaml/badge.svg)](https://github.com/dcarbone/curl-plus/actions/workflows/tests.yaml)
 
 ## Installation
 
