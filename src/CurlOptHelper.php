@@ -1,7 +1,9 @@
-<?php namespace DCarbone\CurlPlus;
+<?php declare(strict_types=1);
+
+namespace DCarbone\CurlPlus;
 
 /*
-    Copyright 2012-2015  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
+    Copyright 2012-2022  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,17 +25,17 @@
 abstract class CurlOptHelper
 {
     /** @var bool */
-    private static $init = false;
+    private static bool $init = false;
 
     /** @var array */
-    protected static $humanReadableCurlOpts = array();
+    protected static array $humanReadableCurlOpts = [];
     /** @var array */
-    protected static $curlOptConstantValues = array();
+    protected static array $curlOptConstantValues = [];
 
     /**
      * Initialization method
      */
-    protected static function init()
+    protected static function init(): void
     {
         $curl_constants = get_defined_constants(true);
 
@@ -48,13 +50,15 @@ abstract class CurlOptHelper
      * @param int $curlOpt
      * @return string|null
      */
-    public static function getStringNameForCurlOpt($curlOpt)
+    public static function getStringNameForCurlOpt(int $curlOpt): ?string
     {
-        if (!self::$init)
+        if (!self::$init) {
             self::init();
+        }
 
-        if (isset(self::$humanReadableCurlOpts[$curlOpt]))
+        if (isset(self::$humanReadableCurlOpts[$curlOpt])) {
             return self::$humanReadableCurlOpts[$curlOpt];
+        }
 
         return null;
     }
@@ -63,17 +67,18 @@ abstract class CurlOptHelper
      * @param array $curlOpts
      * @return array
      */
-    public static function createHumanReadableCurlOptArray(array $curlOpts)
+    public static function createHumanReadableCurlOptArray(array $curlOpts): array
     {
-        if (!self::$init)
+        if (!self::$init) {
             self::init();
+        }
 
         $return = array();
-        foreach($curlOpts as $k=>$v)
-        {
+        foreach($curlOpts as $k => $v) {
             $curlOpt = self::getStringNameForCurlOpt($k);
-            if (null !== $curlOpt)
+            if (null !== $curlOpt) {
                 $return[$curlOpt] = $v;
+            }
         }
 
         return $return;

@@ -19,15 +19,19 @@
             "DCarbone\\CurlPlus\\" : "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "DCarbone\\CurlPlus\\Tests\\": "tests/"
+        }
+    },
 
     "require" : {
-        "php" : ">=5.4.0",
-        "lib-curl" : "*",
+        "php" : ">=8.0",
+        "ext-curl" : "*",
         "dcarbone/curl-header-extractor": "2.0.*"
     },
 
     "require-dev" : {
-        "phpunit/phpunit": "~4.1",
-        "lib-openssl": "*"
+        "phpunit/phpunit": "^8.0 || ^9.0"
     }
 }

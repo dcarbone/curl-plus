@@ -1,7 +1,9 @@
 <?php
 
+namespace DCarbone\CurlPlus\Tests;
+
 /*
-    Copyright 2012-2015  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
+    Copyright 2012-2022  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,10 +18,13 @@
     limitations under the License.
  */
 
+use DCarbone\CurlPlus\CurlOptHelper;
+use PHPUnit\Framework\TestCase;
+
 /**
  * Class CurlOptHelperTest
  */
-class CurlOptHelperTest extends PHPUnit_Framework_TestCase
+class CurlOptHelperTest extends TestCase
 {
     /**
      * @covers \DCarbone\CurlPlus\CurlOptHelper::init
@@ -38,8 +43,8 @@ class CurlOptHelperTest extends PHPUnit_Framework_TestCase
      */
     public function testCanGetStringNameForCurlOpt()
     {
-        $string = \DCarbone\CurlPlus\CurlOptHelper::getStringNameForCurlOpt(CURLOPT_HTTPAUTH);
-        $this->assertInternalType('string', $string);
+        $string = CurlOptHelper::getStringNameForCurlOpt(CURLOPT_HTTPAUTH);
+        $this->assertIsString($string);
         $this->assertEquals('CURLOPT_HTTPAUTH', $string);
     }
 
@@ -49,7 +54,7 @@ class CurlOptHelperTest extends PHPUnit_Framework_TestCase
      */
     public function testCanGetNullForUndefinedCurlOpt()
     {
-        $null = \DCarbone\CurlPlus\CurlOptHelper::getStringNameForCurlOpt(-43);
+        $null = CurlOptHelper::getStringNameForCurlOpt(-43);
         $this->assertNull($null);
     }
 }
