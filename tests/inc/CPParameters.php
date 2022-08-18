@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
-    Copyright 2012-2015  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
+    Copyright 2012-2022  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -22,19 +22,19 @@
 abstract class CPParameters
 {
     /** @var string */
-    public static $jquery1_11 = 'http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js';
+    public const JQUERY1_11_1 = 'http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js';
     /** @var string */
-    public static $jquery2_1 = 'http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js';
+    public const JQUERY2_1_1 = 'http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js';
     /** @var string */
-    public static $smallResponse = 'https://httpbin.org/links/1/0';
+    public const SMALL_RESPONSE = 'https://httpbin.org/links/1/0';
     /** @var string */
-    public static $httpbinURL = 'https://httpbin.org';
+    public const HTTPBIN_URL = 'https://httpbin.org';
     /** @var string */
-    public static $lifeSavingTamales = 'http://www.gstatic.com/hostedimg/6ce955e0e2197bb6_large';
+    public const LIFE_SAVING_TAMALES = 'http://www.gstatic.com/hostedimg/6ce955e0e2197bb6_large';
     /** @var string */
-    public static $tmpDir;
+    public static string $tmpDir;
     /** @var string */
-    public static $localTamalesFileName = 'life_saving_tamales.jpg';
+    public const LOCAL_TAMALES_FILENAME = 'life_saving_tamales.jpg';
 }
 
 CPParameters::$tmpDir = realpath(__DIR__.'/../').'/tmp';

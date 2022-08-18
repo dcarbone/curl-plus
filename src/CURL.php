@@ -1,7 +1,9 @@
-<?php namespace DCarbone\CurlPlus;
+<?php declare(strict_types=1);
+
+namespace DCarbone\CurlPlus;
 
 /*
-    Copyright 2012-2015  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
+    Copyright 2012-2022  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -22,82 +24,89 @@
  */
 abstract class CURL
 {
+    private const GET = 'GET';
+    private const POST = 'POST';
+    private const PUT = 'PUT';
+    private const DELETE = 'DELETE';
+    private const HEAD = 'HEAD';
+    private const OPTIONS = 'OPTIONS';
+
+    /** @var array */
+    public static array $defaultGetCurlOpts = [
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_RETURNTRANSFER => true
+    ];
+
+    /** @var array */
+    public static array $defaultPostCurlOpts = [
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_RETURNTRANSFER => true
+    ];
+
+    /** @var array */
+    public static array $defaultPostRequestHeaders = [
+        'Content-Type' => 'application/x-www-form-urlencoded'
+    ];
+
+    /** @var array */
+    public static array $defaultOptionsCurlOpts = [
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_NOBODY => true
+    ];
+
+    /** @var array */
+    public static array $defaultHeadCurlOpts = [
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_NOBODY => true
+    ];
+
+    /** @var array */
+    public static array $defaultPutCurlOpts = [
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_RETURNTRANSFER => true
+    ];
+
+    /** @var array */
+    public static array $defaultPutRequestHeaders = [
+        'Content-Type' => 'application/x-www-form-urlencoded'
+    ];
+
+    /** @var array */
+    public static array $defaultDeleteCurlOpts = [
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_RETURNTRANSFER => true
+    ];
+
+    /** @var array */
+    public static array $defaultDeleteRequestHeaders = [
+        'Content-Type' => 'application/x-www-form-urlencoded'
+    ];
+
     /** @var \DCarbone\CurlPlus\CurlPlusClient */
-    private static $_client;
+    private static CurlPlusClient $_client;
 
     /** @var array */
-    private static $_methodsWithBody = array('POST', 'PUT', 'DELETE');
-
-    /** @var array */
-    private static $_defaultGetCurlOpts = array(
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_RETURNTRANSFER => true
-    );
-
-    /** @var array */
-    private static $_defaultPostCurlOpts = array(
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_RETURNTRANSFER => true
-    );
-    /** @var array */
-    private static $_defaultPostRequestHeaders = array(
-        'Content-Type' => 'application/x-www-form-urlencoded'
-    );
-
-    /** @var array */
-    private static $_defaultOptionsCurlOpts = array(
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_NOBODY => true
-    );
-
-    /** @var array */
-    private static $_defaultHeadCurlOpts = array(
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_NOBODY => true
-    );
-
-    /** @var array */
-    private static $_defaultPutCurlOpts = array(
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_RETURNTRANSFER => true
-    );
-    /** @var array */
-    private static $_defaultPutRequestHeaders = array(
-        'Content-Type' => 'application/x-www-form-urlencoded'
-    );
-
-    /** @var array */
-    private static $_defaultDeleteCurlOpts = array(
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_RETURNTRANSFER => true
-    );
-    /** @var array */
-    private static $_defaultDeleteRequestHeaders = array(
-        'Content-Type' => 'application/x-www-form-urlencoded'
-    );
+    private const _METHODS_WITH_BODY = [self::POST, self::PUT, self::DELETE];
 
     /**
      * @param string $url
      * @param array $queryParams
-     * @param array $curlOptions
+     * @param array $curlOpts
      * @param array $requestHeaders
      * @return CurlPlusResponse
      */
-    public static function get($url,
-                               array $queryParams = array(),
-                               array $curlOptions = array(),
-                               array $requestHeaders = array())
+    public static function get(string $url,
+                               array  $queryParams = [],
+                               array  $curlOpts = [],
+                               array  $requestHeaders = []): CurlPlusResponse
     {
-        if (count($queryParams) > 0)
-            $url = sprintf('%s?%s', $url, http_build_query($queryParams));
-
         return self::_execute(
-            $url,
-            'GET',
-            $curlOptions,
-            self::$_defaultGetCurlOpts,
+            self::_buildURL($url, $queryParams),
+            self::GET,
+            $curlOpts,
+            self::$defaultGetCurlOpts,
             $requestHeaders
         );
     }
@@ -105,61 +114,58 @@ abstract class CURL
     /**
      * @param string $url
      * @param array $queryParams
-     * @param string|array|object $requestBody
-     * @param array $curlOptions
+     * @param object|array|string|null $requestBody
+     * @param array $curlOpts
      * @param array $requestHeaders
      * @return CurlPlusResponse
      */
-    public static function post($url,
-                                array $queryParams = array(),
-                                $requestBody = null,
-                                array $curlOptions = array(),
-                                array $requestHeaders = array())
+    public static function post(string              $url,
+                                array               $queryParams = [],
+                                object|array|string $requestBody = null,
+                                array               $curlOpts = [],
+                                array               $requestHeaders = []): CurlPlusResponse
     {
-        if (count($queryParams) > 0)
-            $url = sprintf('%s?%s', $url, http_build_query($queryParams));
-
-        return self::_execute(
-            $url,
-            'POST',
-            $curlOptions,
-            self::$_defaultPostCurlOpts,
+       return self::_execute(
+            self::_buildURL($url, $queryParams),
+            self::POST,
+            $curlOpts,
+            self::$defaultPostCurlOpts,
             $requestHeaders,
-            self::$_defaultPostRequestHeaders,
+            self::$defaultPostRequestHeaders,
             $requestBody
         );
     }
 
     /**
      * @param string $url
-     * @param array $curlOptions
+     * @param array $curlOpts
      * @param array $requestHeaders
      * @return CurlPlusResponse
      */
-    public static function options($url, array $curlOptions = array(), array $requestHeaders = array())
+    public static function options(string $url, array $curlOpts = [], array $requestHeaders = []): CurlPlusResponse
     {
         return self::_execute(
             $url,
-            'OPTIONS',
-            $curlOptions,
-            self::$_defaultOptionsCurlOpts,
+            self::OPTIONS,
+            $curlOpts,
+            self::$defaultOptionsCurlOpts,
             $requestHeaders
         );
     }
 
     /**
      * @param string $url
-     * @param array $curlOptions
+     * @param array $curlOpts
      * @param array $requestHeaders
      * @return CurlPlusResponse
      */
-    public static function head($url, array $curlOptions = array(), array $requestHeaders = array())
+    public static function head(string $url, array $curlOpts = [], array $requestHeaders = []): CurlPlusResponse
     {
         return self::_execute(
             $url,
-            'HEAD',
-            $curlOptions,
-            self::$_defaultHeadCurlOpts,
+            self::HEAD,
+            $curlOpts,
+            self::$defaultHeadCurlOpts,
             $requestHeaders
         );
     }
@@ -167,27 +173,24 @@ abstract class CURL
     /**
      * @param string $url
      * @param array $queryParams
-     * @param string|array|object $requestBody
-     * @param array $curlOptions
+     * @param object|array|string|null $requestBody
+     * @param array $curlOpts
      * @param array $requestHeaders
      * @return CurlPlusResponse
      */
-    public static function put($url,
-                               array $queryParams = array(),
-                               $requestBody = null,
-                               array $curlOptions = array(),
-                               array $requestHeaders = array())
+    public static function put(string              $url,
+                               array               $queryParams = [],
+                               object|array|string $requestBody = null,
+                               array               $curlOpts = [],
+                               array               $requestHeaders = []): CurlPlusResponse
     {
-        if (count($queryParams) > 0)
-            $url = sprintf('%s?%s', $url, http_build_query($queryParams));
-
         return self::_execute(
-            $url,
-            'PUT',
-            $curlOptions,
-            self::$_defaultPutCurlOpts,
+            self::_buildURL($url, $queryParams),
+            self::PUT,
+            $curlOpts,
+            self::$defaultPutCurlOpts,
             $requestHeaders,
-            self::$_defaultPutRequestHeaders,
+            self::$defaultPutRequestHeaders,
             $requestBody
         );
     }
@@ -195,27 +198,24 @@ abstract class CURL
     /**
      * @param string $url
      * @param array $queryParams
-     * @param string|array|object $requestBody
-     * @param array $curlOptions
+     * @param object|array|string|null $requestBody
+     * @param array $curlOpts
      * @param array $requestHeaders
      * @return CurlPlusResponse
      */
-    public static function delete($url,
-                                  array $queryParams = array(),
-                                  $requestBody = null,
-                                  array $curlOptions = array(),
-                                  array $requestHeaders = array())
+    public static function delete(string              $url,
+                                  array               $queryParams = [],
+                                  object|array|string $requestBody = null,
+                                  array               $curlOpts = [],
+                                  array               $requestHeaders = []): CurlPlusResponse
     {
-        if (count($queryParams) > 0)
-            $url = sprintf('%s?%s', $url, http_build_query($queryParams));
-
         return self::_execute(
-            $url,
-            'DELETE',
-            $curlOptions,
-            self::$_defaultDeleteCurlOpts,
+            self::_buildURL($url, $queryParams),
+            self::DELETE,
+            $curlOpts,
+            self::$defaultDeleteCurlOpts,
             $requestHeaders,
-            self::$_defaultDeleteRequestHeaders,
+            self::$defaultDeleteRequestHeaders,
             $requestBody
         );
     }
@@ -223,12 +223,25 @@ abstract class CURL
     /**
      * On-load init method
      */
-    public static function _init()
+    public static function _init(): void
     {
-        if (isset(self::$_client))
+        if (isset(self::$_client)) {
             return;
+        }
 
         self::$_client = new CurlPlusClient();
+    }
+
+    /**
+     * @param string $url
+     * @param array $queryParams
+     * @return string
+     */
+    private static function _buildURL(string $url, array $queryParams): string {
+        if ([] !== $queryParams) {
+            $url = sprintf('%s?%s', $url, http_build_query($queryParams));
+        }
+        return $url;
     }
 
     /**
@@ -238,25 +251,26 @@ abstract class CURL
      * @param array $defaultOpts
      * @param array $userHeaders
      * @param array $defaultHeaders
-     * @param string|array|object $requestBody
+     * @param object|array|string|null $requestBody
      * @return CurlPlusResponse
      */
-    private static function _execute($url,
-                                     $method,
-                                     array $userOpts,
-                                     array $defaultOpts,
-                                     array $userHeaders,
-                                     array $defaultHeaders = array(),
-                                     $requestBody = null)
+    private static function _execute(string              $url,
+                                     string              $method,
+                                     array               $userOpts,
+                                     array               $defaultOpts,
+                                     array               $userHeaders,
+                                     array               $defaultHeaders = [],
+                                     object|array|string $requestBody = null): CurlPlusResponse
     {
         self::$_client->initialize($url);
 
-        switch($method)
-        {
-            case 'GET':
+        $method = strtoupper($method);
+
+        switch($method) {
+            case self::GET:
                 $defaultOpts[CURLOPT_HTTPGET] = true;
                 break;
-            case 'POST':
+            case self::POST:
                 $defaultOpts[CURLOPT_POST] = true;
                 break;
 
@@ -267,9 +281,8 @@ abstract class CURL
         $bodyType = gettype($requestBody);
 
         if (null !== $requestBody
-            && in_array($method, self::$_methodsWithBody)
-            && !isset($userOpts[CURLOPT_POSTFIELDS]))
-        {
+            && in_array($method, self::_METHODS_WITH_BODY, true)
+            && !isset($userOpts[CURLOPT_POSTFIELDS])) {
             if ('array' === $bodyType || 'object' === $bodyType)
                 $requestBody = http_build_query($requestBody);
 

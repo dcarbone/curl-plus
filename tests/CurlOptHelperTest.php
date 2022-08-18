@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2012-2015  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
+    Copyright 2012-2022  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 /**
  * Class CurlOptHelperTest
  */
-class CurlOptHelperTest extends PHPUnit_Framework_TestCase
+class CurlOptHelperTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @covers \DCarbone\CurlPlus\CurlOptHelper::init
@@ -39,7 +39,7 @@ class CurlOptHelperTest extends PHPUnit_Framework_TestCase
     public function testCanGetStringNameForCurlOpt()
     {
         $string = \DCarbone\CurlPlus\CurlOptHelper::getStringNameForCurlOpt(CURLOPT_HTTPAUTH);
-        $this->assertInternalType('string', $string);
+        $this->assertIsString($string);
         $this->assertEquals('CURLOPT_HTTPAUTH', $string);
     }
 

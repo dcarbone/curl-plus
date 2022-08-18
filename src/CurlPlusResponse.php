@@ -1,7 +1,9 @@
-<?php namespace DCarbone\CurlPlus;
+<?php declare(strict_types=1);
+
+namespace DCarbone\CurlPlus;
 
 /*
-    Copyright 2012-2015  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
+    Copyright 2012-2022  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -25,132 +27,132 @@ use DCarbone\CURLHeaderExtractor;
 class CurlPlusResponse
 {
     /** @var string */
-    public $url = '';
+    public string $url = '';
     /** @var int */
-    public $httpCode = 0;
+    public int $httpCode = 0;
     /** @var string */
-    public $contentType = '';
+    public string $contentType = '';
     /** @var int */
-    public $headerSize = 0;
+    public int $headerSize = 0;
     /** @var int */
-    public $requestSize = 0;
+    public int $requestSize = 0;
     /** @var bool */
-    public $sslVerifyResult = false;
+    public bool $sslVerifyResult = false;
     /** @var int */
-    public $redirectCount = 0;
+    public int $redirectCount = 0;
     /** @var float */
-    public $totalTime = 0.0;
+    public float $totalTime = 0.0;
     /** @var float */
-    public $nameLookupTime = 0.0;
+    public float $nameLookupTime = 0.0;
     /** @var float */
-    public $connectTime = 0.0;
+    public float $connectTime = 0.0;
     /** @var float */
-    public $preTransferTime = 0.0;
+    public float $preTransferTime = 0.0;
     /** @var float */
-    public $sizeUpload = 0.0;
+    public float $sizeUpload = 0.0;
     /** @var float */
-    public $sizeDownload = 0.0;
+    public float $sizeDownload = 0.0;
     /** @var float */
-    public $speedDownload = 0.0;
+    public float $speedDownload = 0.0;
     /** @var float */
-    public $speedUpload = 0.0;
+    public float $speedUpload = 0.0;
     /** @var float */
-    public $downloadContentLength = 0.0;
+    public float $downloadContentLength = 0.0;
     /** @var float */
-    public $uploadContentLength = 0.0;
+    public float $uploadContentLength = 0.0;
     /** @var float */
-    public $startTransferTime = 0.0;
+    public float $startTransferTime = 0.0;
     /** @var float */
-    public $redirectTime = 0.0;
+    public float $redirectTime = 0.0;
     /** @var string */
-    public $redirectURL = '';
+    public string $redirectURL = '';
     /** @var string */
-    public $primaryIP = '';
+    public string $primaryIP = '';
     /** @var array */
-    public $certInfo = array();
+    public array $certInfo = [];
     /** @var int */
-    public $primaryPort = 0;
+    public int $primaryPort = 0;
     /** @var string */
-    public $localIP = '';
+    public string $localIP = '';
     /** @var int */
-    public $localPort = 0;
+    public int$localPort = 0;
     /** @var string */
-    public $requestHeader = '';
+    public string $requestHeader = '';
     /** @var array */
-    public $responseHeaders = array();
+    public array $responseHeaders = [];
     /** @var string */
-    public $responseBody = '';
+    public string $responseBody = '';
     /** @var string */
-    public $curlError = '';
+    public string $curlError = '';
 
     /** @var array */
-    public $curlOpts = array();
+    public array $curlOpts = [];
 
     /** @var resource */
     public $file = null;
-    /** @var string */
-    public $filename = null;
+    /** @var string|null */
+    public ?string $filename = null;
 
-    /** @var array */
-    private $_requestHeaderArray = null;
+    /** @var array|null */
+    private ?array $_requestHeaderArray = null;
 
     /**
      * AbstractCurlPlusResponse constructor.
-     * @param $response
+     * @param string|bool $response
      * @param array $curlInfo
-     * @param $curlError
+     * @param string|bool $curlError
      * @param array $curlOpts
      */
-    public function __construct($response, array $curlInfo, $curlError, array $curlOpts)
+    public function __construct(string|bool $response, array $curlInfo, string|bool $curlError, array $curlOpts)
     {
         $this->curlOpts = $curlOpts;
 
         // determine response type
-        if (isset($curlOpts[CURLOPT_FILE]) && 'resource' === gettype($curlOpts[CURLOPT_FILE]))
-        {
+        if (isset($curlOpts[CURLOPT_FILE]) && 'resource' === gettype($curlOpts[CURLOPT_FILE])) {
             $this->file = $curlOpts[CURLOPT_FILE];
             $meta = stream_get_meta_data($curlOpts[CURLOPT_FILE]);
             $this->filename = $meta['uri'];
 
-            if (isset($curlOpts[CURLOPT_HEADER]) && $curlOpts[CURLOPT_HEADER])
-                list($this->responseHeaders) = CURLHeaderExtractor::getHeaderAndBody($this->filename);
-        }
-        else if (is_string($response))
-        {
-            if (isset($curlOpts[CURLOPT_HEADER]) && $curlOpts[CURLOPT_HEADER])
-                list($this->responseHeaders, $this->responseBody) = CURLHeaderExtractor::getHeaderAndBody($response);
-            else
+            if (isset($curlOpts[CURLOPT_HEADER]) && $curlOpts[CURLOPT_HEADER]) {
+                [$this->responseHeaders] = CURLHeaderExtractor::getHeaderAndBody($this->filename);
+            }
+        } else if (is_string($response)) {
+            if (isset($curlOpts[CURLOPT_HEADER]) && $curlOpts[CURLOPT_HEADER]) {
+                [$this->responseHeaders, $this->responseBody] = CURLHeaderExtractor::getHeaderAndBody($response);
+            } else {
                 $this->responseBody = $response;
+            }
         }
 
         // parse curl info array
-        $this->url = $curlInfo['url'];
-        $this->contentType = $curlInfo['content_type'];
-        $this->httpCode = $curlInfo['http_code'];
-        $this->headerSize = $curlInfo['header_size'];
-        $this->requestSize = $curlInfo['request_size'];
+        $this->url = (string)$curlInfo['url'];
+        $this->contentType = (string)$curlInfo['content_type'];
+        $this->httpCode = (int)$curlInfo['http_code'];
+        $this->headerSize = (int)$curlInfo['header_size'];
+        $this->requestSize = (int)$curlInfo['request_size'];
         $this->sslVerifyResult = (bool)$curlInfo['ssl_verify_result'];
-        $this->redirectCount = $curlInfo['redirect_count'];
-        $this->totalTime = $curlInfo['total_time'];
-        $this->nameLookupTime = $curlInfo['namelookup_time'];
-        $this->connectTime = $curlInfo['connect_time'];
-        $this->preTransferTime = $curlInfo['pretransfer_time'];
-        $this->sizeDownload = $curlInfo['size_download'];
-        $this->sizeUpload = $curlInfo['size_upload'];
-        $this->speedDownload = $curlInfo['speed_download'];
-        $this->speedUpload = $curlInfo['speed_upload'];
-        $this->downloadContentLength = $curlInfo['download_content_length'];
-        $this->uploadContentLength = $curlInfo['upload_content_length'];
-        $this->startTransferTime = $curlInfo['starttransfer_time'];
-        $this->redirectTime = $curlInfo['redirect_time'];
-        $this->redirectURL = $curlInfo['redirect_url'];
-        $this->primaryIP = $curlInfo['primary_ip'];
-        $this->certInfo = $curlInfo['certinfo'];
-        $this->primaryPort = $curlInfo['primary_port'];
-        $this->localIP = $curlInfo['local_ip'];
-        $this->localPort = $curlInfo['local_port'];
-        if (isset($curlInfo['request_header']))
-            $this->requestHeader = $curlInfo['request_header'];
+        $this->redirectCount = (int)$curlInfo['redirect_count'];
+        $this->totalTime = (float)$curlInfo['total_time'];
+        $this->nameLookupTime = (float)$curlInfo['namelookup_time'];
+        $this->connectTime = (float)$curlInfo['connect_time'];
+        $this->preTransferTime = (float)$curlInfo['pretransfer_time'];
+        $this->sizeDownload = (float)$curlInfo['size_download'];
+        $this->sizeUpload = (float)$curlInfo['size_upload'];
+        $this->speedDownload = (float)$curlInfo['speed_download'];
+        $this->speedUpload = (float)$curlInfo['speed_upload'];
+        $this->downloadContentLength = (float)$curlInfo['download_content_length'];
+        $this->uploadContentLength = (float)$curlInfo['upload_content_length'];
+        $this->startTransferTime = (float)$curlInfo['starttransfer_time'];
+        $this->redirectTime = (float)$curlInfo['redirect_time'];
+        $this->redirectURL = (string)$curlInfo['redirect_url'];
+        $this->primaryIP = (string)$curlInfo['primary_ip'];
+        $this->certInfo = (array)$curlInfo['certinfo'];
+        $this->primaryPort = (int)$curlInfo['primary_port'];
+        $this->localIP = (string)$curlInfo['local_ip'];
+        $this->localPort = (int)$curlInfo['local_port'];
+        if (isset($curlInfo['request_header'])) {
+            $this->requestHeader = (string)$curlInfo['request_header'];
+        }
 
         // set the error, whatever the value
         $this->curlError = $curlError;
@@ -159,7 +161,7 @@ class CurlPlusResponse
     /**
      * @return string
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
@@ -167,7 +169,7 @@ class CurlPlusResponse
     /**
      * @return int
      */
-    public function getHttpCode()
+    public function getHttpCode(): int
     {
         return $this->httpCode;
     }
@@ -175,7 +177,7 @@ class CurlPlusResponse
     /**
      * @return string
      */
-    public function getContentType()
+    public function getContentType(): string
     {
         return $this->contentType;
     }
@@ -183,7 +185,7 @@ class CurlPlusResponse
     /**
      * @return int
      */
-    public function getHeaderSize()
+    public function getHeaderSize(): int
     {
         return $this->headerSize;
     }
@@ -191,7 +193,7 @@ class CurlPlusResponse
     /**
      * @return int
      */
-    public function getRequestSize()
+    public function getRequestSize(): int
     {
         return $this->requestSize;
     }
@@ -199,7 +201,7 @@ class CurlPlusResponse
     /**
      * @return boolean
      */
-    public function isSslVerifyResult()
+    public function isSslVerifyResult(): bool
     {
         return $this->sslVerifyResult;
     }
@@ -207,7 +209,7 @@ class CurlPlusResponse
     /**
      * @return int
      */
-    public function getRedirectCount()
+    public function getRedirectCount(): int
     {
         return $this->redirectCount;
     }
@@ -215,7 +217,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getTotalTime()
+    public function getTotalTime(): float
     {
         return $this->totalTime;
     }
@@ -223,7 +225,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getNameLookupTime()
+    public function getNameLookupTime(): float
     {
         return $this->nameLookupTime;
     }
@@ -231,7 +233,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getConnectTime()
+    public function getConnectTime(): float
     {
         return $this->connectTime;
     }
@@ -239,7 +241,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getPreTransferTime()
+    public function getPreTransferTime(): float
     {
         return $this->preTransferTime;
     }
@@ -247,7 +249,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getSizeUpload()
+    public function getSizeUpload(): float
     {
         return $this->sizeUpload;
     }
@@ -255,7 +257,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getSizeDownload()
+    public function getSizeDownload(): float
     {
         return $this->sizeDownload;
     }
@@ -263,7 +265,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getSpeedDownload()
+    public function getSpeedDownload(): float
     {
         return $this->speedDownload;
     }
@@ -271,7 +273,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getSpeedUpload()
+    public function getSpeedUpload(): float
     {
         return $this->speedUpload;
     }
@@ -279,7 +281,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getDownloadContentLength()
+    public function getDownloadContentLength(): float
     {
         return $this->downloadContentLength;
     }
@@ -287,7 +289,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getUploadContentLength()
+    public function getUploadContentLength(): float
     {
         return $this->uploadContentLength;
     }
@@ -295,7 +297,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getStartTransferTime()
+    public function getStartTransferTime(): float
     {
         return $this->startTransferTime;
     }
@@ -303,7 +305,7 @@ class CurlPlusResponse
     /**
      * @return float
      */
-    public function getRedirectTime()
+    public function getRedirectTime(): float
     {
         return $this->redirectTime;
     }
@@ -311,7 +313,7 @@ class CurlPlusResponse
     /**
      * @return string
      */
-    public function getRedirectURL()
+    public function getRedirectURL(): string
     {
         return $this->redirectURL;
     }
@@ -319,7 +321,7 @@ class CurlPlusResponse
     /**
      * @return string
      */
-    public function getPrimaryIP()
+    public function getPrimaryIP(): string
     {
         return $this->primaryIP;
     }
@@ -327,7 +329,7 @@ class CurlPlusResponse
     /**
      * @return array
      */
-    public function getCertInfo()
+    public function getCertInfo(): array
     {
         return $this->certInfo;
     }
@@ -335,7 +337,7 @@ class CurlPlusResponse
     /**
      * @return int
      */
-    public function getPrimaryPort()
+    public function getPrimaryPort(): int
     {
         return $this->primaryPort;
     }
@@ -343,7 +345,7 @@ class CurlPlusResponse
     /**
      * @return string
      */
-    public function getLocalIP()
+    public function getLocalIP(): string
     {
         return $this->localIP;
     }
@@ -351,7 +353,7 @@ class CurlPlusResponse
     /**
      * @return int
      */
-    public function getLocalPort()
+    public function getLocalPort(): int
     {
         return $this->localPort;
     }
@@ -359,7 +361,7 @@ class CurlPlusResponse
     /**
      * @return string
      */
-    public function getRequestHeader()
+    public function getRequestHeader(): string
     {
         return $this->requestHeader;
     }
@@ -367,7 +369,7 @@ class CurlPlusResponse
     /**
      * @return array
      */
-    public function getResponseHeaders()
+    public function getResponseHeaders(): array
     {
         return $this->responseHeaders;
     }
@@ -375,15 +377,15 @@ class CurlPlusResponse
     /**
      * @return string
      */
-    public function getResponseBody()
+    public function getResponseBody(): string
     {
         return $this->responseBody;
     }
 
     /**
-     * @return string
+     * @return bool|string
      */
-    public function getCurlError()
+    public function getCurlError(): bool|string
     {
         return $this->curlError;
     }
@@ -391,7 +393,7 @@ class CurlPlusResponse
     /**
      * @return array
      */
-    public function getCurlOpts()
+    public function getCurlOpts(): array
     {
         return $this->curlOpts;
     }
@@ -407,18 +409,19 @@ class CurlPlusResponse
     /**
      * @return string
      */
-    public function getFilename()
+    public function getFilename(): ?string
     {
         return $this->filename;
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getRequestHeaderArray()
+    public function getRequestHeaderArray(): ?array
     {
-        if (null === $this->_requestHeaderArray)
-            list($this->_requestHeaderArray) = CURLHeaderExtractor::getHeaderAndBody($this->requestHeader);
+        if (null === $this->_requestHeaderArray) {
+            [$this->_requestHeaderArray] = CURLHeaderExtractor::getHeaderAndBody($this->requestHeader);
+        }
 
         return $this->_requestHeaderArray;
     }
@@ -426,11 +429,8 @@ class CurlPlusResponse
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        if (isset($this->filename))
-            return (string)$this->filename;
-
-        return (string)$this->responseBody;
+        return (string)($this->filename ?? $this->responseBody);
     }
 }

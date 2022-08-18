@@ -3,7 +3,7 @@
 require_once __DIR__ . '/inc/CPParameters.php';
 
 /*
-    Copyright 2012-2015  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
+    Copyright 2012-2022  Daniel Paul Carbone (daniel.p.carbone@gmail.com)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,31 +21,31 @@ require_once __DIR__ . '/inc/CPParameters.php';
 /**
  * Class CurlPlusClientTest
  */
-class CurlPlusClientTest extends PHPUnit_Framework_TestCase
+class CurlPlusClientTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * Create tmp dir
      */
-    protected function setUp()
+    protected function setUp(): void
     {
-        if (!is_dir(CPParameters::$tmpDir))
-        {
-            $tmpDir = (bool)@mkdir(CPParameters::$tmpDir);
-            if (!$tmpDir)
+        if (!is_dir(CPParameters::$tmpDir)) {
+            $tmpDir = mkdir(CPParameters::$tmpDir);
+            if (!$tmpDir) {
                 throw new \RuntimeException('Unable to create tmp dir needed for tests.');
+            }
         }
     }
 
     /**
      * Removing any local files and temp dir
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
-        if (is_dir(CPParameters::$tmpDir))
-        {
-            $f = sprintf('%s/%s', CPParameters::$tmpDir, CPParameters::$localTamalesFileName);
-            if (file_exists($f))
+        if (is_dir(CPParameters::$tmpDir)) {
+            $f = sprintf('%s/%s', CPParameters::$tmpDir, CPParameters::LOCAL_TAMALES_FILENAME);
+            if (file_exists($f)) {
                 @unlink($f);
+            }
         }
     }
 
@@ -67,13 +67,13 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanConstructWithHeaderArgument()
     {
-        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, array(), array('Content-Type' => 'text/xml'));
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, [], ['Content-Type' => 'text/xml']);
 
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusClient', $curlClient);
 
         $requestHeaders = $curlClient->getRequestHeaders();
 
-        $this->assertInternalType('array', $requestHeaders);
+        $this->assertIsArray($requestHeaders);
         $this->assertCount(1, $requestHeaders);
         $this->assertArrayHasKey('Content-Type', $requestHeaders);
         $this->assertContains('text/xml', $requestHeaders);
@@ -85,13 +85,13 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanConstructWithHeaderArgumentContainingSpaceInName()
     {
-        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, array(), array('Content-Type ' => 'text/xml'));
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, [], ['Content-Type ' => 'text/xml']);
 
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusClient', $curlClient);
 
         $requestHeaders = $curlClient->getRequestHeaders();
 
-        $this->assertInternalType('array', $requestHeaders);
+        $this->assertIsArray($requestHeaders);
         $this->assertCount(1, $requestHeaders);
         $this->assertArrayHasKey('Content-Type', $requestHeaders);
         $this->assertContains('text/xml', $requestHeaders);
@@ -99,20 +99,11 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::__construct
-     * @expectedException \InvalidArgumentException
-     */
-    public function testExceptionThrownWhenInvalidHeaderArrayStructurePassedToConstructor()
-    {
-        new \DCarbone\CurlPlus\CurlPlusClient(null, array(), array('test value'));
-    }
-
-    /**
-     * @covers \DCarbone\CurlPlus\CurlPlusClient::__construct
-     * @expectedException \RuntimeException
      */
     public function testExceptionThrownWhenEmptyHeaderNamePassedToConstructor()
     {
-        new \DCarbone\CurlPlus\CurlPlusClient(null, array(), array('' => 'text/xml'));
+        $this->expectException(\RuntimeException::class);
+        new \DCarbone\CurlPlus\CurlPlusClient(null, [], ['' => 'text/xml']);
     }
 
     /**
@@ -155,11 +146,11 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::execute
      * @depends testCanConstructWithNoArguments
-     * @expectedException \RuntimeException
      * @param \DCarbone\CurlPlus\CurlPlusClient $curlClient
      */
     public function testExceptionThrownWhenTryingToExecuteRequestWithEmptyConstructorArguments(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
     {
+        $this->expectException(\RuntimeException::class);
         $curlClient->execute();
     }
 
@@ -169,7 +160,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanConstructWithOnlyUrlParam()
     {
-        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::$jquery1_11);
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::JQUERY1_11_1);
 
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusClient', $curlClient);
 
@@ -185,7 +176,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     {
         $requestUrl = $curlClient->getRequestUrl();
 
-        $this->assertEquals(CPParameters::$jquery1_11, $requestUrl);
+        $this->assertEquals(CPParameters::JQUERY1_11_1, $requestUrl);
     }
 
     /**
@@ -194,7 +185,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanConstructCurlPlusObjectWithCurlOptUrlParam()
     {
-        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, array(CURLOPT_URL => CPParameters::$jquery1_11));
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(null, [CURLOPT_URL => CPParameters::JQUERY1_11_1]);
 
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusClient', $curlClient);
 
@@ -210,7 +201,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     {
         $requestUrl = $curlClient->getRequestUrl();
 
-        $this->assertEquals(CPParameters::$jquery1_11, $requestUrl);
+        $this->assertEquals(CPParameters::JQUERY1_11_1, $requestUrl);
     }
 
     /**
@@ -220,8 +211,8 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     public function testCanConstructWithUrlAndCurlOptArrayParams()
     {
         $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(
-            CPParameters::$jquery1_11,
-            array(CURLOPT_URL => CPParameters::$jquery1_11,
+            CPParameters::JQUERY1_11_1,
+            array(CURLOPT_URL => CPParameters::JQUERY1_11_1,
                 CURLOPT_RETURNTRANSFER => true));
 
         $this->assertInstanceOf('\\DCarbone\\CurlPlus\\CurlPlusClient', $curlClient);
@@ -238,7 +229,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     {
         $requestUrl = $curlClient->getRequestUrl();
 
-        $this->assertEquals(CPParameters::$jquery1_11, $requestUrl);
+        $this->assertEquals(CPParameters::JQUERY1_11_1, $requestUrl);
     }
 
     /**
@@ -294,13 +285,13 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanAddRequestHeaderString()
     {
-        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::$jquery1_11);
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::JQUERY1_11_1);
         $client = $curlClient->setRequestHeader('Accept', 'application/json');
 
         $this->assertEquals($curlClient, $client);
 
         $requestHeaders = $curlClient->getRequestHeaders();
-        $this->assertInternalType('array', $requestHeaders);
+        $this->assertIsArray($requestHeaders);
         $this->assertCount(1, $requestHeaders);
         $this->assertArrayHasKey('Accept', $requestHeaders);
         $this->assertContains('application/json', $requestHeaders);
@@ -316,10 +307,10 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanAddArrayOfHeadersToExistingRequestHeaderArray(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
     {
-        $curlClient->addRequestHeaders(array('Content-Type' => 'text/html'));
+        $curlClient->addRequestHeaders(['Content-Type' => 'text/html']);
 
         $requestHeaders = $curlClient->getRequestHeaders();
-        $this->assertInternalType('array', $requestHeaders);
+        $this->assertIsArray($requestHeaders);
         $this->assertCount(2, $requestHeaders);
         $this->assertArrayHasKey('Content-Type', $requestHeaders);
         $this->assertContains('text/html', $requestHeaders);
@@ -335,11 +326,11 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanOverwriteRequestHeaderArray(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
     {
-        $curlClient->setRequestHeaders(array('Content-Type' => 'text/xml'));
+        $curlClient->setRequestHeaders(['Content-Type' => 'text/xml']);
 
         $requestHeaders = $curlClient->getRequestHeaders();
 
-        $this->assertInternalType('array', $requestHeaders);
+        $this->assertIsArray($requestHeaders);
         $this->assertCount(1, $requestHeaders);
         $this->assertArrayHasKey('Content-Type', $requestHeaders);
         $this->assertContains('text/xml', $requestHeaders);
@@ -352,21 +343,21 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanSetCurlOptsWithArray()
     {
-        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::$jquery1_11);
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::JQUERY1_11_1);
 
         $curlOpts = $curlClient->getCurlOpts();
-        $this->assertInternalType('array', $curlOpts);
+        $this->assertIsArray($curlOpts);
         $this->assertCount(0, $curlOpts);
 
-        $client = $curlClient->setCurlOpts(array(
+        $client = $curlClient->setCurlOpts([
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
-        ));
+        ]);
 
         $this->assertEquals($curlClient, $client);
 
         $curlOpts = $curlClient->getCurlOpts();
-        $this->assertInternalType('array', $curlOpts);
+        $this->assertIsArray($curlOpts);
         $this->assertCount(2, $curlOpts);
         $this->assertArrayHasKey(CURLOPT_RETURNTRANSFER, $curlOpts);
         $this->assertArrayHasKey(CURLOPT_SSL_VERIFYPEER, $curlOpts);
@@ -386,7 +377,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
         $curlClient->removeCurlOpt(CURLOPT_SSL_VERIFYPEER);
 
         $curlOpts = $curlClient->getCurlOpts();
-        $this->assertInternalType('array', $curlOpts);
+        $this->assertIsArray($curlOpts);
         $this->assertCount(1, $curlOpts);
         $this->assertArrayHasKey(CURLOPT_RETURNTRANSFER, $curlOpts);
         $this->assertArrayNotHasKey(CURLOPT_SSL_VERIFYPEER, $curlOpts);
@@ -418,9 +409,9 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanSetRequestUrlAndResetOpts(\DCarbone\CurlPlus\CurlPlusClient $curlClient)
     {
-        $curlClient->initialize(CPParameters::$jquery2_1, true);
+        $curlClient->initialize(CPParameters::JQUERY2_1_1, true);
 
-        $this->assertEquals(CPParameters::$jquery2_1, $curlClient->getRequestUrl());
+        $this->assertEquals(CPParameters::JQUERY2_1_1, $curlClient->getRequestUrl());
         $this->assertCount(0, $curlClient->getCurlOpts());
         $this->assertCount(0, $curlClient->getRequestHeaders());
 
@@ -433,7 +424,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanExecuteQueryDirectlyToOutputBufferWithoutResetting()
     {
-        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::$jquery2_1);
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::JQUERY2_1_1);
 
         ob_start();
         $curlClient->execute();
@@ -447,7 +438,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCanReExecuteRequestSuccessfully()
     {
-        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::$jquery2_1);
+        $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::JQUERY2_1_1);
 
         ob_start();
         $curlClient->execute();
@@ -489,7 +480,7 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     public function testCanParseResponseHeadersOutOfResponseBody()
     {
         $curlClient = new \DCarbone\CurlPlus\CurlPlusClient(
-            CPParameters::$smallResponse,
+            CPParameters::SMALL_RESPONSE,
             array(
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_SSL_VERIFYPEER => false
@@ -499,13 +490,13 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
         $response = $curlClient->execute();
 
         $responseHeaders = $response->responseHeaders;
-        $this->assertInternalType('array', $responseHeaders);
+        $this->assertIsArray($responseHeaders);
         $lastHeader = end($responseHeaders);
-        $this->assertContains('HTTP/1.1 200 OK', $lastHeader);
+        $this->assertContains('HTTP/2 200', $lastHeader);
 
         $data = $response->responseBody;
 
-        $this->assertInternalType('string', $data);
+        $this->assertIsString($data);
         $this->assertEquals('<html><head><title>Links</title></head><body>0 </body></html>', $data);
     }
 
@@ -520,25 +511,18 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \DCarbone\CurlPlus\CurlPlusClient::setCurlOpt
-     * @expectedException \InvalidArgumentException
-     */
-    public function testExceptionThrownWhenPassingInvalidCurlOptIdentifier()
-    {
-         new \DCarbone\CurlPlus\CurlPlusClient(null, array('sandwiches' => true));
-    }
-
-    /**
      * @covers \DCarbone\CurlPlus\CurlPlusClient::execute
      */
     public function testExecutionWithCustomRequestHeaders()
     {
         $client = new \DCarbone\CurlPlus\CurlPlusClient(
-            CPParameters::$jquery1_11,
+            CPParameters::JQUERY1_11_1,
             array(CURLOPT_RETURNTRANSFER => true),
             array('Accept' => 'application/json'));
 
-        $client->execute(true);
+        $resp = $client->execute(true);
+
+        $this->assertEquals(200, $resp->getHttpCode());
     }
 
     /**
@@ -546,12 +530,12 @@ class CurlPlusClientTest extends PHPUnit_Framework_TestCase
      */
     public function testGetFileResponseWithFileRequest()
     {
-        $client = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::$lifeSavingTamales);
+        $client = new \DCarbone\CurlPlus\CurlPlusClient(CPParameters::LIFE_SAVING_TAMALES);
 
-        $f = sprintf('%s/%s', CPParameters::$tmpDir, CPParameters::$localTamalesFileName);
+        $f = sprintf('%s/%s', CPParameters::$tmpDir, CPParameters::LOCAL_TAMALES_FILENAME);
 
         $fh = fopen($f, 'w+');
-        $this->assertInternalType('resource', $fh);
+        $this->assertIsResource($fh);
         if ($fh)
         {
             $client->setCurlOpt(CURLOPT_FILE, $fh);
