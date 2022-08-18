@@ -13,7 +13,7 @@ This lib is designed to be used with [Composer](https://getcomposer.org/)
 
 ```json
 {
-    "dcarbone/curl-plus" : "3.0.*"
+    "dcarbone/curl-plus" : "4.0.*"
 }
 ```
 
